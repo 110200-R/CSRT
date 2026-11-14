@@ -1,0 +1,4611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRT 项目 - CCW Security Research Tool</title>
+<link rel="icon" type="image/png" href="https://m.ccw.site/gandi_application/RL.png">
+<link rel="shortcut icon" type="image/png" href="https://m.ccw.site/gandi_application/RL.png">
+<link rel="apple-touch-icon" href="https://m.ccw.site/gandi_application/RL.png">
+<style>
+    /* ==================== 全局重置 ==================== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --primary-glow: rgba(139, 92, 246, 0.35);
+        --text-main: #1a1a2e;
+        --text-secondary: #5a5568;
+        --text-muted: #8a8498;
+        --border: rgba(139, 92, 246, 0.12);
+        --border-light: rgba(139, 92, 246, 0.06);
+        --bg-page: #f7f5fb;
+        --bg-white: rgba(255, 255, 255, 0.85);
+        --bg-card: linear-gradient(180deg, #ffffff 0%, #fdfcff 100%);
+        --bg-sidebar: linear-gradient(180deg, #f9f7ff 0%, #f3eefc 100%);
+        --bg-hover: rgba(139, 92, 246, 0.04);
+        --link: #8b5cf6;
+        --shadow-sm: 0 1px 2px rgba(139, 92, 246, 0.04), 0 1px 6px rgba(139, 92, 246, 0.06);
+        --shadow-md: 0 4px 16px rgba(139, 92, 246, 0.1), 0 2px 4px rgba(139, 92, 246, 0.06);
+        --shadow-lg: 0 20px 40px rgba(139, 92, 246, 0.15), 0 8px 16px rgba(139, 92, 246, 0.08);
+        --shadow-glow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-pill: 999px;
+        --timeline-line: rgba(139, 92, 246, 0.25);
+    }
+
+    body.dark {
+        --text-main: #e8e6f0;
+        --text-secondary: #a8a4b8;
+        --text-muted: #6b6880;
+        --border: rgba(139, 92, 246, 0.15);
+        --border-light: rgba(139, 92, 246, 0.08);
+        --bg-page: #0a0812;
+        --bg-white: rgba(22, 19, 31, 0.85);
+        --bg-card: linear-gradient(180deg, rgba(28, 24, 40, 0.9) 0%, rgba(22, 19, 31, 0.9) 100%);
+        --bg-sidebar: linear-gradient(180deg, rgba(28, 24, 40, 0.9) 0%, rgba(22, 19, 31, 0.9) 100%);
+        --bg-hover: rgba(139, 92, 246, 0.06);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+        --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.6);
+        --timeline-line: rgba(139, 92, 246, 0.2);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                     "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: var(--bg-page);
+        color: var(--text-main);
+        font-size: 14px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        transition: background 0.3s ease, color 0.3s ease;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.07) 0%, transparent 35%),
+            radial-gradient(circle at 85% 85%, rgba(167, 139, 250, 0.07) 0%, transparent 35%),
+            url("data:image/svg+xml,%3Csvg width='44' height='44' viewBox='0 0 44 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M22 3l16 9v18l-16 9L6 30V12z' fill='none' stroke='%238b5cf6' stroke-width='0.4' opacity='0.06'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+    }
+    body.dark::before {
+        background-image:
+            radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 35%),
+            radial-gradient(circle at 85% 85%, rgba(167, 139, 250, 0.1) 0%, transparent 35%),
+            url("data:image/svg+xml,%3Csvg width='44' height='44' viewBox='0 0 44 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M22 3l16 9v18l-16 9L6 30V12z' fill='none' stroke='%23a78bfa' stroke-width='0.4' opacity='0.08'/%3E%3C/svg%3E");
+    }
+
+    body > * { position: relative; z-index: 1; }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(139, 92, 246, 0.2);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.4); }
+
+    /* ==================== 顶部 Header ==================== */
+    .site-header {
+        background: var(--bg-white);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-light);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .header-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-shrink: 0;
+    }
+
+    .logo-icon {
+        width: 44px;
+        height: 48px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.3));
+        animation: logoFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    .logo-text h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-main);
+        letter-spacing: 0.3px;
+        line-height: 1.2;
+        background: linear-gradient(135deg, var(--text-main), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .logo-text p {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        letter-spacing: 0.3px;
+    }
+
+    .search-area {
+        flex: 1;
+        max-width: 480px;
+        margin-left: 40px;
+    }
+
+    .search-box {
+        display: flex;
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-pill);
+        overflow: visible;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+        background: rgba(255, 255, 255, 0.6);
+        position: relative;
+    }
+    body.dark .search-box { background: rgba(0, 0, 0, 0.25); }
+    .search-box:focus-within {
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow-glow);
+        background: var(--bg-white);
+    }
+
+    .search-box input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 0 18px;
+        font-size: 14px;
+        color: var(--text-main);
+        background: transparent;
+        border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    .search-box button {
+        padding: 0 24px;
+        border: none;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.2s;
+        font-family: inherit;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+        border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    }
+    .search-box button:hover { opacity: 0.9; }
+    .search-box button:active { transform: scale(0.98); }
+
+    .search-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        max-height: 420px;
+        overflow-y: auto;
+        z-index: 200;
+        display: none;
+        animation: dropdownIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .search-dropdown.active { display: block; }
+
+    @keyframes dropdownIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .search-group {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .search-group:last-child { border-bottom: none; }
+
+    .search-group-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 6px 16px 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .search-group-title .count {
+        background: rgba(139, 92, 246, 0.12);
+        color: var(--primary);
+        padding: 1px 6px;
+        border-radius: var(--radius-pill);
+        font-size: 10px;
+    }
+
+    .search-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background 0.15s;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    .search-item:hover,
+    .search-item.selected {
+        background: rgba(139, 92, 246, 0.08);
+        color: var(--text-main);
+    }
+    .search-item-icon {
+        flex-shrink: 0;
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+    }
+    .search-item-content { flex: 1; min-width: 0; }
+    .search-item-title {
+        color: var(--text-main);
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .search-item-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .search-empty {
+        padding: 32px 16px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13px;
+    }
+    .search-empty-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+        opacity: 0.5;
+    }
+
+    mark.search-hl {
+        background: linear-gradient(180deg, transparent 55%, rgba(139, 92, 246, 0.35) 55%);
+        color: inherit;
+        padding: 0 1px;
+        border-radius: 2px;
+        font-weight: 600;
+    }
+
+    .search-result-count {
+        margin-left: 12px;
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .search-results {
+        padding: 16px 20px 24px;
+    }
+
+    .search-result-section {
+        margin-bottom: 24px;
+    }
+    .search-result-section:last-child { margin-bottom: 0; }
+
+    .search-result-section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 10px;
+        padding-left: 12px;
+        border-left: 3px solid var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-result-card {
+        padding: 12px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .search-result-card:hover {
+        transform: translateX(4px);
+        border-color: rgba(139, 92, 246, 0.3);
+        box-shadow: var(--shadow-sm);
+    }
+    .search-result-card-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+    .search-result-card-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    @keyframes highlightFlash {
+        0%, 100% { background: transparent; }
+        20%, 60% { background: rgba(139, 92, 246, 0.18); }
+    }
+    .highlight-flash {
+        animation: highlightFlash 1.5s ease;
+        border-radius: var(--radius-sm);
+    }
+
+    .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+    .top-nav a {
+        color: var(--text-main);
+        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        transition: color 0.15s, background 0.15s;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    .top-nav a:hover {
+        color: var(--primary);
+        background: rgba(139, 92, 246, 0.08);
+        text-decoration: none;
+    }
+    .top-nav .divider {
+        color: var(--border);
+        font-size: 12px;
+        user-select: none;
+    }
+
+    .theme-toggle {
+        margin-left: 16px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: var(--bg-white);
+        color: var(--text-main);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        flex-shrink: 0;
+        font-size: 16px;
+    }
+    .theme-toggle:hover {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: #fff;
+        border-color: transparent;
+        transform: rotate(20deg) scale(1.1);
+        box-shadow: var(--shadow-md);
+    }
+    .theme-toggle:active { transform: rotate(20deg) scale(0.95); }
+
+    /* ==================== 二级 Tab 栏 ==================== */
+    .tab-bar {
+        background: var(--bg-white);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-light);
+        box-shadow: var(--shadow-sm);
+        transition: background 0.3s ease, border-color 0.3s ease;
+        position: sticky;
+        top: 85px;
+        z-index: 99;
+    }
+
+    .tab-bar-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        position: relative;
+    }
+
+    .tab-item {
+        padding: 14px 22px;
+        font-size: 15px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: color 0.25s;
+        user-select: none;
+        white-space: nowrap;
+        position: relative;
+        z-index: 1;
+    }
+    .tab-item:hover { color: var(--primary); }
+    .tab-item.active {
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+    .tab-underline {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        border-radius: 3px 3px 0 0;
+        box-shadow: 0 0 12px rgba(139, 92, 246, 0.5), 0 -2px 8px rgba(139, 92, 246, 0.2);
+        transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    opacity 0.25s ease;
+        pointer-events: none;
+    }
+
+    /* ==================== 主体内容区 ==================== */
+    .main-wrapper {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px 24px 60px;
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .content-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .tab-panel {
+        display: none;
+        animation: panelFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .tab-panel.active { display: block; }
+
+    @keyframes panelFadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pinned-notice {
+        margin: 16px 20px 0;
+        padding: 14px 18px;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(167, 139, 250, 0.08));
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+        animation: pinnedGlow 3s ease-in-out infinite;
+    }
+    body.dark .pinned-notice {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(167, 139, 250, 0.1));
+        border-color: rgba(139, 92, 246, 0.35);
+    }
+    @keyframes pinnedGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.15); }
+        50% { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0); }
+    }
+    .pinned-notice::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 3px; height: 100%;
+        background: linear-gradient(180deg, var(--primary-light), var(--primary-dark));
+    }
+    .pinned-icon { flex-shrink: 0; font-size: 18px; line-height: 1.4; }
+    .pinned-content { flex: 1; }
+    .pinned-label {
+        font-size: 11px;
+        color: var(--primary);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    .pinned-title {
+        font-size: 14px;
+        color: var(--text-main);
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .card-header-wrap {
+        padding: 20px 20px 0;
+        background: transparent;
+        display: flex;
+        align-items: center;
+    }
+    .card-header {
+        display: inline-block;
+        padding: 8px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        border-radius: var(--radius-sm);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    }
+
+    /* ==================== 更新日志时间线 ==================== */
+    .news-list {
+        list-style: none;
+        padding: 16px 20px 24px;
+    }
+    .timeline-list {
+        position: relative;
+        padding-left: 36px;
+    }
+    .timeline-list::before {
+        content: '';
+        position: absolute;
+        left: 12px;
+        top: 24px;
+        bottom: 24px;
+        width: 2px;
+        background: linear-gradient(to bottom,
+            transparent 0%,
+            var(--timeline-line) 8%,
+            var(--timeline-line) 92%,
+            transparent 100%);
+        border-radius: 1px;
+    }
+
+    .news-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 12px;
+        border-radius: var(--radius-sm);
+        transition: background 0.25s, padding-left 0.25s, transform 0.25s;
+        cursor: pointer;
+        gap: 20px;
+        position: relative;
+    }
+    .news-item:hover {
+        background: var(--bg-hover);
+        padding-left: 18px;
+        transform: translateX(2px);
+    }
+    .news-item:hover .news-title { color: var(--primary); }
+    .news-item:hover::before {
+        transform: translate(-50%, -50%) scale(1.35);
+        box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.18), 0 0 16px rgba(139, 92, 246, 0.4);
+    }
+
+    .news-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 50%;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        border: 2px solid var(--bg-page);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 1;
+        transform: translate(-50%, -50%);
+    }
+
+    .news-title {
+        font-size: 15px;
+        color: var(--text-main);
+        transition: color 0.15s;
+        flex: 1;
+        line-height: 1.6;
+    }
+
+    .news-download-btn {
+        flex-shrink: 0;
+        padding: 5px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: rgba(139, 92, 246, 0.06);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+    }
+    .news-download-btn:hover {
+        background: rgba(139, 92, 246, 0.18);
+        border-color: rgba(139, 92, 246, 0.3);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+    }
+    .news-download-btn:active { transform: translateY(0); }
+    body.dark .news-download-btn:hover { color: var(--primary-light); }
+
+    @media (max-width: 720px) {
+        .news-item { flex-wrap: wrap; }
+        .news-download-btn {
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .version-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-family: "SF Mono", "Consolas", monospace;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(167, 139, 250, 0.1));
+        color: var(--primary-dark);
+        padding: 2px 10px;
+        border-radius: var(--radius-pill);
+        margin-right: 8px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        vertical-align: middle;
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        position: relative;
+        top: -1px;
+    }
+    body.dark .version-badge { color: var(--primary-light); }
+
+    .category-tag {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 10px;
+        border-radius: var(--radius-pill);
+        margin-right: 8px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        vertical-align: middle;
+        position: relative;
+        top: -1px;
+    }
+    .cat-fix { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+    .cat-feature { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    .cat-optimize { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+    .cat-refactor { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    .cat-release { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+
+    /* ==================== 功能列表 ==================== */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+        padding: 20px;
+    }
+
+    .feature-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+    }
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 3px;
+        background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .feature-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(139, 92, 246, 0.25);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    .feature-icon {
+        font-size: 22px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(167, 139, 250, 0.08));
+        flex-shrink: 0;
+    }
+    .feature-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-main);
+        flex: 1;
+    }
+    .feature-status {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    .status-stable { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    .status-beta { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    .status-dev { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+    .feature-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    /* ==================== 文档面板 ==================== */
+    .docs-layout {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0;
+        min-height: 500px;
+    }
+    .docs-toc {
+        border-right: 1px solid var(--border-light);
+        padding: 20px 16px;
+        background: var(--bg-sidebar);
+    }
+    .docs-toc-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+    .docs-toc-item {
+        display: block;
+        padding: 8px 12px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 2px;
+    }
+    .docs-toc-item:hover {
+        background: rgba(139, 92, 246, 0.08);
+        color: var(--primary);
+    }
+    .docs-toc-item.active {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.08));
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+    body.dark .docs-toc-item.active { color: var(--primary-light); }
+
+    .docs-content {
+        padding: 24px 28px;
+        overflow-y: auto;
+        max-height: 600px;
+    }
+    .docs-section { display: none; }
+    .docs-section.active { display: block; animation: panelFadeIn 0.35s ease; }
+    .docs-section h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border-light);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .docs-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin: 20px 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .docs-section h3::before {
+        content: '';
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(180deg, var(--primary-light), var(--primary-dark));
+        border-radius: 2px;
+    }
+    .docs-section p {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+    .docs-section ul, .docs-section ol {
+        padding-left: 24px;
+        margin-bottom: 12px;
+    }
+    .docs-section li {
+        color: var(--text-secondary);
+        line-height: 1.9;
+        font-size: 14px;
+    }
+    .docs-section code {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--primary-dark);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "SF Mono", "Consolas", monospace;
+        font-size: 12px;
+    }
+    body.dark .docs-section code { color: var(--primary-light); }
+    .docs-section pre {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        padding: 14px;
+        overflow-x: auto;
+        margin: 12px 0;
+        font-family: "SF Mono", "Consolas", monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-main);
+    }
+    body.dark .docs-section pre { background: rgba(0, 0, 0, 0.3); }
+    .docs-section pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+    }
+    .docs-section table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 13px;
+    }
+    .docs-section th, .docs-section td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .docs-section th {
+        background: rgba(139, 92, 246, 0.06);
+        font-weight: 600;
+        color: var(--text-main);
+    }
+    .docs-section td { color: var(--text-secondary); }
+
+    /* ==================== 开发计划 ==================== */
+    .roadmap-wrap { padding: 20px; }
+    .roadmap-col-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 20px 0 10px;
+        padding-left: 12px;
+        border-left: 3px solid var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .roadmap-col-title:first-child { margin-top: 0; }
+    .roadmap-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        margin-bottom: 8px;
+        transition: all 0.25s;
+    }
+    .roadmap-item:hover {
+        transform: translateX(4px);
+        border-color: rgba(139, 92, 246, 0.25);
+        box-shadow: var(--shadow-sm);
+    }
+    .roadmap-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+    .roadmap-icon.done {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+    .roadmap-icon.doing {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        animation: pulse 2s infinite;
+    }
+    .roadmap-icon.plan {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+    }
+    .roadmap-text {
+        flex: 1;
+        font-size: 14px;
+        color: var(--text-main);
+    }
+    .roadmap-meta {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: "SF Mono", "Consolas", monospace;
+    }
+
+    /* ==================== 反馈 ==================== */
+    .feedback-wrap { padding: 28px; }
+    .feedback-intro {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+    .feedback-intro h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+    .feedback-intro p {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+    .feedback-channels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+    .feedback-channel {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-main);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .feedback-channel:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(139, 92, 246, 0.3);
+        text-decoration: none;
+    }
+    .feedback-channel-icon {
+        font-size: 26px;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(167, 139, 250, 0.08));
+        border-radius: var(--radius-md);
+        flex-shrink: 0;
+    }
+    .feedback-channel-info h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+    .feedback-channel-info p {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+    .feedback-form {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 24px;
+    }
+    .feedback-form h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text-main);
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s;
+        resize: vertical;
+    }
+    .form-group select { cursor: pointer; }
+    body.dark .form-group input,
+    body.dark .form-group textarea,
+    body.dark .form-group select {
+        background: rgba(0, 0, 0, 0.25);
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-glow);
+        background: var(--bg-white);
+    }
+    .form-group textarea { min-height: 120px; }
+    .form-counter {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: right;
+    }
+    .form-counter.over { color: #ef4444; }
+    .form-submit {
+        padding: 10px 28px;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    }
+    .form-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+    }
+    .form-submit:active:not(:disabled) { transform: translateY(0); }
+    .form-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .form-hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-align: center;
+    }
+    .form-hint.success { color: #22c55e; }
+    .form-hint.error { color: #ef4444; }
+    .form-query-link {
+        text-align: center;
+        margin-top: 14px;
+        font-size: 12px;
+    }
+    .form-query-link a {
+        color: var(--primary);
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+    .form-query-link a:hover { color: var(--primary-dark); }
+
+    /* ============ 我的反馈 ============ */
+    .my-feedback {
+        margin-top: 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 20px;
+    }
+    .my-feedback h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .my-feedback-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+    }
+    .my-feedback-empty {
+        text-align: center;
+        padding: 24px 12px;
+        color: var(--text-muted);
+        font-size: 13px;
+    }
+    .my-feedback-item {
+        padding: 12px 14px;
+        background: rgba(139, 92, 246, 0.04);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-sm);
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    body.dark .my-feedback-item { background: rgba(139, 92, 246, 0.08); }
+    .my-feedback-item:hover {
+        border-color: rgba(139, 92, 246, 0.3);
+        transform: translateX(4px);
+    }
+    .my-feedback-item-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+    }
+    .my-feedback-item-type {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: var(--radius-pill);
+    }
+    .my-feedback-item-time {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: "SF Mono", "Consolas", monospace;
+    }
+    .my-feedback-item-desc {
+        font-size: 13px;
+        color: var(--text-main);
+        line-height: 1.6;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 8px;
+    }
+    .my-feedback-item-status {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .my-feedback-item-status.has-reply { color: #22c55e; font-weight: 600; }
+    .my-feedback-item-status.no-reply { color: var(--text-muted); }
+    .my-feedback-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        justify-content: flex-end;
+    }
+    .my-feedback-btn {
+        padding: 6px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: rgba(139, 92, 246, 0.06);
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    .my-feedback-btn:hover {
+        background: rgba(139, 92, 246, 0.15);
+        color: var(--primary);
+    }
+    .my-feedback-btn.danger {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+    .my-feedback-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* ============ 查询码弹窗 ============ */
+    .code-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 8, 18, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .code-modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .code-modal {
+        background: var(--bg-card);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        transform: scale(0.92);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .code-modal-overlay.active .code-modal { transform: scale(1); }
+    .code-modal h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #22c55e;
+    }
+    .code-modal-sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        line-height: 1.7;
+    }
+    .code-modal-code {
+        background: rgba(139, 92, 246, 0.08);
+        border: 1px dashed rgba(139, 92, 246, 0.3);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        font-family: "SF Mono", "Consolas", monospace;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        text-align: center;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+        user-select: all;
+        cursor: pointer;
+        word-break: break-all;
+    }
+    body.dark .code-modal-code { color: var(--primary-light); }
+    .code-modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+    .code-modal-actions button {
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: rgba(139, 92, 246, 0.06);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    .code-modal-actions button:hover {
+        background: rgba(139, 92, 246, 0.15);
+        color: var(--primary);
+    }
+    .code-modal-actions button.primary {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    }
+    .code-modal-actions button.primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+    }
+    .code-modal-input {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text-main);
+        font-size: 15px;
+        font-family: "SF Mono", "Consolas", monospace;
+        letter-spacing: 1.5px;
+        text-align: center;
+        outline: none;
+        margin-bottom: 14px;
+        transition: all 0.2s;
+        text-transform: uppercase;
+    }
+    body.dark .code-modal-input { background: rgba(0, 0, 0, 0.3); }
+    .code-modal-input:focus {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-glow);
+    }
+    .code-modal-msg {
+        font-size: 12px;
+        text-align: center;
+        margin-bottom: 12px;
+        min-height: 18px;
+    }
+    .code-modal-msg.error { color: #ef4444; }
+    .code-modal-msg.success { color: #22c55e; }
+
+    /* ============ 反馈详情弹窗 ============ */
+    .fb-detail-replies {
+        margin-top: 16px;
+    }
+    .fb-detail-reply {
+        background: rgba(59, 130, 246, 0.06);
+        border-left: 3px solid #3b82f6;
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        margin-bottom: 8px;
+    }
+    body.dark .fb-detail-reply { background: rgba(59, 130, 246, 0.12); }
+    .fb-detail-reply-time {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: "SF Mono", "Consolas", monospace;
+        margin-bottom: 4px;
+    }
+    .fb-detail-reply-content {
+        font-size: 13px;
+        color: var(--text-main);
+        line-height: 1.7;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    /* ==================== 右侧边栏 ==================== */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .sidebar-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sidebar-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .sidebar-header {
+        background: var(--bg-sidebar);
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-light);
+        letter-spacing: 0.3px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    body.dark .sidebar-header { color: var(--primary-light); }
+
+    .sidebar-body {
+        padding: 14px 16px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.8;
+    }
+    .sidebar-body ul { list-style: none; }
+    .sidebar-body li {
+        padding: 6px 0;
+        border-bottom: 1px dashed var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .sidebar-body li:last-child { border-bottom: none; }
+    .sidebar-body .stat-label { color: var(--text-muted); }
+    .sidebar-body .stat-value {
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-family: "SF Mono", "Consolas", monospace;
+        font-size: 13px;
+    }
+    body.dark .sidebar-body .stat-value { color: var(--primary-light); }
+
+    .sidebar-nav-item {
+        display: block;
+        padding: 6px 0;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px dashed var(--border-light);
+    }
+    .sidebar-nav-item:last-child { border-bottom: none; }
+    .sidebar-nav-item:hover {
+        color: var(--primary);
+        padding-left: 6px;
+    }
+
+    /* ============ 版本下载 ============ */
+    .download-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--border-light);
+        transition: all 0.2s;
+    }
+    .download-item:last-child { border-bottom: none; }
+    .download-item:hover { padding-left: 4px; }
+    .download-info { flex: 1; min-width: 0; }
+    .download-version {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-main);
+        font-family: "SF Mono", "Consolas", monospace;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .download-badge-latest {
+        font-size: 9px;
+        padding: 1px 6px;
+        border-radius: var(--radius-pill);
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        font-family: inherit;
+    }
+    .download-btn {
+        padding: 4px 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: rgba(139, 92, 246, 0.06);
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .download-btn:hover {
+        background: rgba(139, 92, 246, 0.18);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    .download-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .download-empty {
+        text-align: center;
+        padding: 16px 8px;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+    .download-more {
+        display: block;
+        text-align: center;
+        padding: 8px 0 0;
+        font-size: 12px;
+        color: var(--primary);
+        cursor: pointer;
+    }
+    .download-more:hover { text-decoration: underline; }
+
+    /* ============ 辅助脚本卡片 ============ */
+    .aux-script-item {
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border-light);
+        transition: all 0.2s;
+    }
+    .aux-script-item:last-child { border-bottom: none; }
+    .aux-script-item:hover { padding-left: 4px; }
+
+    .aux-script-head {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+        flex-wrap: wrap;
+    }
+    .aux-script-icon {
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .aux-script-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-main);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .aux-script-badge {
+        font-size: 9px;
+        padding: 1px 6px;
+        border-radius: var(--radius-pill);
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
+    }
+    .aux-script-desc {
+        font-size: 11px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 4px;
+    }
+    .aux-script-note {
+        font-size: 10px;
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.08);
+        padding: 3px 6px;
+        border-radius: 4px;
+        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+    .aux-script-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .aux-script-version {
+        font-size: 10px;
+        font-family: "SF Mono", "Consolas", monospace;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+    /* ==================== 模块标签栏 ==================== */
+    .dept-bar {
+        background: var(--bg-white);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-light);
+        margin-top: 20px;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .dept-bar-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px 24px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    .dept-label {
+        color: var(--text-main);
+        font-weight: 600;
+        margin-right: 4px;
+    }
+    .dept-tag {
+        color: var(--text-secondary);
+        padding: 4px 12px;
+        border-radius: var(--radius-pill);
+        background: rgba(139, 92, 246, 0.06);
+        transition: all 0.25s;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+    .dept-tag:hover {
+        color: var(--primary);
+        background: rgba(139, 92, 246, 0.12);
+        transform: translateY(-1px);
+    }
+
+    /* ==================== 底部 Footer ==================== */
+    .site-footer {
+        background: var(--bg-white);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border-light);
+        padding: 24px;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .footer-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .footer-logo {
+        width: 24px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+    .footer-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .footer-links a {
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-links .divider {
+        color: var(--border);
+        font-size: 12px;
+        user-select: none;
+    }
+
+    /* ==================== 详情弹窗 ==================== */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 8, 18, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal {
+        background: var(--bg-card);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: var(--radius-lg);
+        max-width: 640px;
+        width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow:
+            0 0 0 1px rgba(139, 92, 246, 0.05),
+            0 25px 50px rgba(0, 0, 0, 0.3),
+            0 0 60px rgba(139, 92, 246, 0.1);
+        transform: scale(0.92) translateY(20px);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-overlay.active .modal {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        position: sticky;
+        top: 0;
+        background: var(--bg-card);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        z-index: 1;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .modal-title-area { flex: 1; }
+    .modal-version {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-family: "SF Mono", "Consolas", monospace;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    body.dark .modal-version { color: var(--primary-light); }
+
+    .modal-close {
+        width: 34px;
+        height: 34px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.25s;
+        flex-shrink: 0;
+    }
+    .modal-close:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+        transform: rotate(90deg);
+    }
+
+    .modal-body { padding: 20px 24px 24px; }
+
+    .modal-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 16px 0 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .modal-section-title:first-child { margin-top: 0; }
+
+    .modal-list { list-style: none; padding: 0; }
+    .modal-list li {
+        padding: 8px 0 8px 22px;
+        position: relative;
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        border-bottom: 1px dashed var(--border-light);
+    }
+    .modal-list li:last-child { border-bottom: none; }
+    .modal-list li::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 16px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    }
+
+    /* ==================== 加载动画 ==================== */
+    .page-loader {
+        position: fixed;
+        inset: 0;
+        background: var(--bg-page);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 24px;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .loader-hex {
+        width: 64px;
+        height: 70px;
+        animation: loaderPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderPulse {
+        0%, 100% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 1; }
+    }
+    .loader-text {
+        font-size: 13px;
+        color: var(--text-muted);
+        letter-spacing: 3px;
+        animation: pulse 1.5s ease-in-out infinite;
+        font-family: "SF Mono", "Consolas", monospace;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 1; }
+    }
+
+    .fade-in-item {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: fadeInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== 响应式 ==================== */
+    @media (max-width: 980px) {
+        .main-wrapper { grid-template-columns: 1fr; }
+        .search-area { display: none; }
+        .docs-layout { grid-template-columns: 1fr; }
+        .docs-toc {
+            border-right: none;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 12px;
+        }
+        .docs-toc-title { display: none; }
+        .docs-toc-item { white-space: nowrap; margin-bottom: 0; }
+    }
+
+    @media (max-width: 720px) {
+        .header-inner { flex-wrap: wrap; padding: 14px 16px; }
+        .top-nav { display: none; }
+        .tab-bar { top: auto; position: relative; }
+        .tab-bar-inner { padding: 0 12px; overflow-x: auto; }
+        .tab-item { padding: 12px 14px; font-size: 14px; }
+        .main-wrapper { padding: 16px 12px 40px; }
+        .news-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+        .timeline-list { padding-left: 28px; }
+        .timeline-list::before { left: 8px; }
+        .news-item::before { left: -22px; }
+        .dept-bar-inner { padding: 16px 12px; }
+        .features-grid { grid-template-columns: 1fr; padding: 16px; }
+        .docs-content { padding: 18px; }
+        .feedback-wrap { padding: 18px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ==================== 加载动画 ==================== -->
+<div class="page-loader" id="pageLoader">
+    <svg class="loader-hex" viewBox="0 0 88 96.24656" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient x1="302.87804" y1="182.59082" x2="337.12196" y2="182.59082" gradientTransform="translate(-223.94835,-146.54535) scale(0.7394,0.7394)" gradientUnits="userSpaceOnUse" id="loader-grad">
+                <stop offset="0" stop-color="#8b5cf6"/>
+                <stop offset="1" stop-color="#4c1d95"/>
+            </linearGradient>
+        </defs>
+        <g transform="translate(-276,-131.87672)">
+            <g stroke-miterlimit="10">
+                <path d="M320,133l43,22v50l-43,22l-43,-22v-50z" fill="#4f2e7d" stroke="#3c1b5e" stroke-width="2"/>
+                <path d="M320,142l34,18v40l-34,18l-34,-18v-40z" fill="#744cb0" stroke="none" stroke-width="1"/>
+                <text transform="translate(302.87804,198.19466) scale(1.35245,1.35245)" font-size="40" fill="url(#loader-grad)" font-family="Sans Serif" font-weight="bold" text-anchor="start">
+                    <tspan x="0" dy="0">R</tspan>
+                </text>
+            </g>
+        </g>
+    </svg>
+    <div class="loader-text">LOADING CSRT...</div>
+</div>
+
+<!-- ==================== 顶部 Header ==================== -->
+<header class="site-header">
+    <div class="header-inner">
+        <div class="logo-area">
+            <svg class="logo-icon" viewBox="0 0 88 96.24656" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient x1="302.87804" y1="182.59082" x2="337.12196" y2="182.59082" gradientTransform="translate(-223.94835,-146.54535) scale(0.7394,0.7394)" gradientUnits="userSpaceOnUse" id="csrt-header-grad">
+                        <stop offset="0" stop-color="#8b5cf6"/>
+                        <stop offset="1" stop-color="#4c1d95"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(-276,-131.87672)">
+                    <g stroke-miterlimit="10">
+                        <path d="M320,133l43,22v50l-43,22l-43,-22v-50z" fill="#4f2e7d" stroke="#3c1b5e" stroke-width="2"/>
+                        <path d="M320,142l34,18v40l-34,18l-34,-18v-40z" fill="#744cb0" stroke="none" stroke-width="1"/>
+                        <text transform="translate(302.87804,198.19466) scale(1.35245,1.35245)" font-size="40" fill="url(#csrt-header-grad)" font-family="Sans Serif" font-weight="bold" text-anchor="start">
+                            <tspan x="0" dy="0">R</tspan>
+                        </text>
+                    </g>
+                </g>
+            </svg>
+            <div class="logo-text">
+                <h1>CSRT 项目</h1>
+                <p>CCW Security Research Tool · 共创世界安全研究工具</p>
+            </div>
+        </div>
+
+        <div class="search-area">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索功能、文档、更新日志......" autocomplete="off">
+                <button type="button" id="searchBtn">搜索</button>
+                <div class="search-dropdown" id="searchDropdown"></div>
+            </div>
+        </div>
+
+        <nav class="top-nav">
+            <a href="#" data-goto="log">首页</a>
+            <span class="divider">|</span>
+            <a href="#" data-goto="features">功能</a>
+            <span class="divider">|</span>
+            <a href="#" data-goto="docs">文档</a>
+            <span class="divider">|</span>
+            <a href="#" data-goto="log">更新日志</a>
+            <span class="divider">|</span>
+            <a href="#" data-goto="feedback">联系</a>
+        </nav>
+
+        <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    </div>
+</header>
+
+<!-- ==================== 二级 Tab 栏 ==================== -->
+<div class="tab-bar">
+    <div class="tab-bar-inner" id="tabBarInner">
+        <div class="tab-item active" data-tab="log">更新日志</div>
+        <div class="tab-item" data-tab="features">功能列表</div>
+        <div class="tab-item" data-tab="docs">文档</div>
+        <div class="tab-item" data-tab="roadmap">开发计划</div>
+        <div class="tab-item" data-tab="feedback">反馈</div>
+        <div class="tab-underline" id="tabUnderline"></div>
+    </div>
+</div>
+
+<!-- ==================== 主体内容 ==================== -->
+<div class="main-wrapper">
+
+    <main class="content-card">
+
+        <!-- ========== Tab 1: 更新日志 ========== -->
+        <div class="tab-panel active" data-panel="log">
+            <div class="pinned-notice">
+                <span class="pinned-icon">📌</span>
+                <div class="pinned-content">
+                    <div class="pinned-label">置顶公告</div>
+                    <div class="pinned-title" id="csrt-pinned-announcement">加载中...</div>
+                </div>
+            </div>
+            <div class="card-header-wrap">
+                <span class="card-header">更新日志</span>
+            </div>
+            <ul class="news-list timeline-list" id="newsList"></ul>
+        </div>
+
+        <!-- ========== Tab 2: 功能列表 ========== -->
+        <div class="tab-panel" data-panel="features">
+            <div class="card-header-wrap">
+                <span class="card-header">功能列表</span>
+            </div>
+            <div class="features-grid" id="featuresGrid"></div>
+        </div>
+
+        <!-- ========== Tab 3: 文档 ========== -->
+        <div class="tab-panel" data-panel="docs">
+            <div class="card-header-wrap">
+                <span class="card-header">文档</span>
+            </div>
+            <div class="docs-layout">
+                <aside class="docs-toc" id="docsToc"></aside>
+                <div class="docs-content" id="docsContent"></div>
+            </div>
+        </div>
+
+        <!-- ========== Tab 4: 开发计划 ========== -->
+        <div class="tab-panel" data-panel="roadmap">
+            <div class="card-header-wrap">
+                <span class="card-header">开发计划</span>
+            </div>
+            <div class="roadmap-wrap" id="roadmapWrap"></div>
+        </div>
+
+        <!-- ========== Tab 5: 反馈 ========== -->
+        <div class="tab-panel" data-panel="feedback">
+            <div class="card-header-wrap">
+                <span class="card-header">反馈</span>
+            </div>
+            <div class="feedback-wrap">
+                <div class="feedback-intro">
+                    <h2>反馈与建议</h2>
+                    <p>你的反馈是 CSRT 前进的动力</p>
+                </div>
+                <div class="feedback-channels">
+                    <a class="feedback-channel" href="#" target="_blank">
+                        <div class="feedback-channel-icon">🐛</div>
+                        <div class="feedback-channel-info">
+                            <h4>问题反馈</h4>
+                            <p>提交 Bug 或功能建议</p>
+                        </div>
+                    </a>
+                    <a class="feedback-channel" href="#" target="_blank">
+                        <div class="feedback-channel-icon">💬</div>
+                        <div class="feedback-channel-info">
+                            <h4>社区讨论</h4>
+                            <p>加入 CCW 社区交流</p>
+                        </div>
+                    </a>
+                    <a class="feedback-channel" href="#" target="_blank">
+                        <div class="feedback-channel-icon">📧</div>
+                        <div class="feedback-channel-info">
+                            <h4>邮件联系</h4>
+                            <p>作者 110200</p>
+                        </div>
+                    </a>
+                </div>
+                <form class="feedback-form" id="feedbackForm">
+                    <h3>✉️ 快速反馈</h3>
+                    <div class="form-group">
+                        <label>反馈类型</label>
+                        <select id="fbType">
+                            <option value="Bug">🐛 Bug 报告</option>
+                            <option value="功能建议">💡 功能建议</option>
+                            <option value="其他">📝 其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>联系方式（可选）</label>
+                        <input type="text" id="fbContact" placeholder="邮箱 / CCW ID">
+                    </div>
+                    <div class="form-group">
+                        <label>详细描述 <span style="color:#ef4444;">*</span></label>
+                        <textarea id="fbDesc" placeholder="请详细描述你遇到的问题或建议（最多 500 字）..." maxlength="500"></textarea>
+                        <div class="form-counter"><span id="fbCount">0</span> / 500</div>
+                    </div>
+                    <button type="submit" class="form-submit" id="fbSubmit">提交反馈</button>
+                    <div class="form-hint" id="fbHint">💡 反馈会公开存储，请勿填写敏感信息</div>
+                    <div class="form-query-link">
+                        已有查询码？<a id="openQueryModal">点此查询回复</a>
+                    </div>
+                </form>
+
+                <!-- 我的反馈 -->
+                <div class="my-feedback" id="myFeedbackBox">
+                    <h3>📬 我的反馈</h3>
+                    <div class="my-feedback-sub">这里显示你在这台设备上提交过的反馈，可查看管理员回复</div>
+                    <div id="myFeedbackList">
+                        <div class="my-feedback-empty">暂无记录</div>
+                    </div>
+                    <div class="my-feedback-actions">
+                        <button class="my-feedback-btn" id="refreshMyFeedback">🔄 刷新回复</button>
+                        <button class="my-feedback-btn danger" id="clearMyFeedback">🗑️ 清空记录</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== Tab 6: 搜索结果（隐藏） ========== -->
+        <div class="tab-panel" data-panel="search">
+            <div class="card-header-wrap">
+                <span class="card-header">搜索结果</span>
+                <span class="search-result-count" id="searchResultCount"></span>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+    </main>
+
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-header">📖 关于 CSRT</div>
+            <div class="sidebar-body">
+                CSRT 是一款面向共创世界（CCW）的安全研究工具，集成扩展拦截、代码修改、变量管理、作品替换、元素检查等功能。
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-header">🧭 快速导航</div>
+            <div class="sidebar-body">
+                <ul style="list-style:none;">
+                    <li class="sidebar-nav-item" data-goto="features">→ 功能总览</li>
+                    <li class="sidebar-nav-item" data-goto="docs">→ 使用文档</li>
+                    <li class="sidebar-nav-item" data-goto="docs">→ 常见问题</li>
+                    <li class="sidebar-nav-item" data-goto="feedback">→ 反馈问题</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-header">📊 项目统计</div>
+            <div class="sidebar-body">
+                <ul>
+                    <li><span class="stat-label">当前版本</span><span class="stat-value" id="csrt-current-version">v2.9.7</span></li>
+                    <li><span class="stat-label">迭代次数</span><span class="stat-value">23</span></li>
+                    <li><span class="stat-label">代码规模</span><span class="stat-value">8500+</span></li>
+                    <li><span class="stat-label">功能模块</span><span class="stat-value">12+</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-header">📦 版本下载</div>
+            <div class="sidebar-body" id="downloadsList">
+                <!-- JS 填充 -->
+            </div>
+        </div>
+
+        <!-- ★★★ 新增：辅助脚本卡片 ★★★ -->
+        <div class="sidebar-card">
+            <div class="sidebar-header">🔌 辅助脚本</div>
+            <div class="sidebar-body" id="auxScriptsList">
+                <!-- JS 填充 -->
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+<!-- ==================== 模块标签栏 ==================== -->
+<div class="dept-bar">
+    <div class="dept-bar-inner">
+        <span class="dept-label">功能模块：</span>
+        <span class="dept-tag">扩展拦截</span>
+        <span class="dept-tag">代码修改</span>
+        <span class="dept-tag">变量管理</span>
+        <span class="dept-tag">作品替换器</span>
+        <span class="dept-tag">元素检查器</span>
+        <span class="dept-tag">Eureka 内嵌</span>
+        <span class="dept-tag">云数据</span>
+        <span class="dept-tag">排行榜</span>
+        <span class="dept-tag">成就</span>
+        <span class="dept-tag">经济合约</span>
+        <span class="dept-tag">MMO 广播</span>
+        <span class="dept-tag">主页查看器</span>
+    </div>
+</div>
+
+<!-- ==================== 底部 Footer ==================== -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-left">
+            <svg class="footer-logo" viewBox="0 0 88 96.24656" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient x1="302.87804" y1="182.59082" x2="337.12196" y2="182.59082" gradientTransform="translate(-223.94835,-146.54535) scale(0.7394,0.7394)" gradientUnits="userSpaceOnUse" id="csrt-footer-grad">
+                        <stop offset="0" stop-color="#8b5cf6"/>
+                        <stop offset="1" stop-color="#4c1d95"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(-276,-131.87672)">
+                    <g stroke-miterlimit="10">
+                        <path d="M320,133l43,22v50l-43,22l-43,-22v-50z" fill="#4f2e7d" stroke="#3c1b5e" stroke-width="2"/>
+                        <path d="M320,142l34,18v40l-34,18l-34,-18v-40z" fill="#744cb0" stroke="none" stroke-width="1"/>
+                        <text transform="translate(302.87804,198.19466) scale(1.35245,1.35245)" font-size="40" fill="url(#csrt-footer-grad)" font-family="Sans Serif" font-weight="bold" text-anchor="start">
+                            <tspan x="0" dy="0">R</tspan>
+                        </text>
+                    </g>
+                </g>
+            </svg>
+            <span>CSRT · CCW Security Research Tool</span>
+        </div>
+        <div class="footer-links">
+            <a href="#">GitHub</a>
+            <span class="divider">|</span>
+            <a href="#">联系</a>
+            <span class="divider">|</span>
+            <a href="#">反馈</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ==================== 详情弹窗 ==================== -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+/* ==================== 更新日志数据 ==================== */
+const newsData = [
+{
+    version: 'v2.9.8',
+    category: 'feature',
+    categoryLabel: '新功能',
+    title: 'DOM 隐身、作品导出、角色管理、修复登录、篡改CCW返回值、性能监控曲线化、XHR索引化',
+    details: {
+        '新功能': [
+            'DOM 隐身模块 CSRTStealth：给 CSRT 自己的 DOM 节点挂随机 data-* 属性，模仿页面已有风格',
+            'CSRTStealth 采样页面 data- 前缀：扫描页面已有属性前缀，让 CSRT 节点的属性名不突兀',
+            'CSRTStealth 属性轮换：每 20~50 秒重新随机一次 data-* 属性',
+            'CSRTStealth.patchMutationObserver()：伪装成 MutationObserver 子类，过滤 CSRT 节点的变更记录',
+            'CSRTStealth.protectNode(node)：把工具窗口 / 悬浮球加入保护集合',
+            'CSRTStealth.isProtected(node)：沿父链检查节点是否受保护',
+            'CSRTStealth.randomizeZIndex(css)：把 2147483647 的 z-index 加随机偏移',
+            '作品导出：一键导出当前作品为 .sb3（vm.saveProjectSb3）',
+            '导出单个角色为 .sprite3（vm.exportSprite）',
+            '导出所有角色为 ZIP（JSZip 动态加载，多 CDN fallback）',
+            '角色管理面板：Tab，可视化查看/修改角色位置、造型、可见性',
+            '角色管理支持导出造型 SVG（costume.asset.encodeDataURI）',
+            '角色管理支持按名称 / ID / 造型筛选，行内编辑 x / y',
+            '角色管理支持一键切换角色可见性',
+            '修复登录 repairLogin()：掉登录时通过 students/self/detail 重新写入 cookie-user-id',
+            '篡改 CCW 返回值：基于 runtime._primitives 直接覆写 opcode 实现，比覆盖 ccwAPI 对象可靠',
+            '新增 XHR 索引化匹配：_analyzeMatcher 自动分析 matcher 源码分类到 exact / prefix / includes / fallback',
+            'XHR 拦截器 _findHandlers 只查命中的桶，几十个 handler 时几乎 0 开销',
+            'privateLog 增加 notify 合并（200ms 节流）：多次 add 只触发一次 onChange',
+            'detectExtensions 增加指纹缓存（TTL 500ms）：基于 targets 数量 + 已加载扩展名 + 块数量指纹',
+            'invalidateDetectCache()：手动失效扩展检测缓存',
+            '性能监控 Canvas 曲线化：FPS / 延迟实时曲线（60 个采样点，约 1 分钟窗口）',
+            '性能监控面板支持折叠 / 展开',
+            '性能监控面板位置持久化到 localStorage（__csrt_monitor_pos）',
+            '性能监控面板内嵌关闭按钮，无需打开 CSRT 主面板',
+            '切换身份新增 cookie-user-id 写入：让服务端也能识别切换后的身份',
+            '切换身份支持用户不存在时手动填写 id / name / avatar',
+            '切换身份同时劫持 students/self/detail 与 study-community/member/detail',
+            '作品导出 API 暴露：__CSRT.assets.saveProject / saveSprite / saveAllSprites / getSpriteList / download'
+        ],
+        '优化': [
+            'XHRInterceptor 从数组全遍历升级为索引化匹配，URL 匹配走桶查询',
+            'privateLog._scheduleNotify 合并高频 add，避免日志面板频繁渲染',
+            'detectExtensions 缓存指纹 + TTL，getProjectInfo 高频调用不再全量扫描 blocks',
+            'VM 捕获提前到 IIFE 内根据 URL 判断（不依赖 PageFeatureGate）',
+            '作品导出使用 vmpromptExportName 自定义对话框替代原生 prompt',
+            '角色管理使用 getVM() 复用 CSRT 的 VM 缓存，不再自己劫持 bind',
+            '性能监控面板从纯数字升级为 Canvas 折线 + 渐变填充',
+            '性能监控 FPS 曲线附带平均值 / 最低值统计',
+            '性能监控延迟曲线附带平均值 / 最高值统计',
+            '篡改 CCW 返回值覆盖频率从 1000ms 提升到 50ms',
+            '篡改 CCW 返回值不再依赖 ccwAPI 对象是否重建，CCW 重置 ccwAPI 也不影响',
+            '角色管理 / 数据修改 面板使用 csrt-select / csrt-var-input 统一风格',
+            'showPause / ccwApi 在 PageFeatureGate 中保持作品页启用',
+            'setupExtensionInterceptor 增加 __csrt_ext_interceptor_installed 防重复安装',
+            '窗口宽度从 820px 调整为 880px：7 个 Tab 单行显示不换行'
+        ],
+        '重构': [
+            '删除「破解未登录游玩」功能（实测无效，减小体积）',
+            '伪造 CCW API 从覆盖 ccwAPI 对象改为覆写 runtime._primitives[opcode]',
+            '新增 CSRT_CCWAPI_PRESET_RULES 预置规则表：opcode → { type, value }',
+            '新增 csrtRtTamperMap / csrtRtTamperOriginal 双 Map 管理篡改状态',
+            '新增 csrtConvertRtValue 类型转换：支持 boolean / number / string',
+            '新增 csrtApplyRtToOpcode / csrtApplyAllPresetRules 应用函数',
+            '切换身份从 XHRInterceptor.register 改为独立劫持 XMLHttpRequest.prototype.open',
+            '切换身份新增 __csrt_identity_hooked 防重复劫持',
+            '角色管理 UI 从白色简洁风改为 CSRT 毛玻璃（csrt-glass-btn / csrt-select / csrt-var-input）',
+            '作品导出抽离为独立函数：exportProjectAsSb3 / exportSprite / exportAllSpritesAsZip',
+            '新增 loadJSZip 动态加载：jsdelivr → unpkg → cdnjs 三级 fallback',
+            '新增 getExportProjectName / downloadBlob / promptExportName 工具函数',
+            '新增 getSpriteList：返回 isOriginal 角色列表供导出下拉框使用',
+            'XHRInterceptor 新增 _exactIndex / _prefixIndex / _prefixSorted / _fallbackList 四个索引结构',
+            'XHRInterceptor 新增 _analyzeMatcher / _indexEntry / _unindexEntry / _rebuildPrefixSorted',
+            'XHRInterceptor 新增 _findHandlers(url)：按 URL 精确 / 前缀 / includes / fallback 依次查询',
+            'CSRTStealth 独立模块，暴露 protectNode / unprotectNode / isProtected / isProtectedFast',
+            'CSRTStealth 引入 protectedNodes 集合 + rotationHosts 数组管理受保护节点',
+            'CSRTStealth MutationObserver patch 只过滤保护节点的变更，其他记录原样透传',
+            'privateLog 新增 _notifyScheduled / _notifyTimer / _scheduleNotify / _doNotify',
+            'privateLog.notify() 改为立即触发（清除节流定时器）',
+            'detectExtensions 新增 _detectCache 模块级缓存 + performance.now 计时',
+            '性能监控新增 drawChart 通用绘图：DPR 适配 / 渐变填充 / 折线 / 末端圆点',
+            '性能监控新增 redrawFpsChart / redrawLatencyChart / redrawAllCharts',
+            '性能监控新增 monitorSamples.fps / monitorSamples.latency 采样缓冲',
+            '版本号从 2.9.7 升级到 2.9.8'
+        ]
+    }
+},
+    {
+        version: 'v2.9.7',
+        category: 'refactor',
+        categoryLabel: '重构',
+        title: '统一配置管理、日志过滤工厂、私有日志上限、数据库补全',
+        details: {
+            '新功能': [
+                'CSRTConfig 统一配置：API 端点 / 页面特征 / 存储键 / 超时时间集中管理',
+                'CSRTConfig.getApi(name)：按名称获取 API 端点',
+                'CSRTConfig.getStorage(name)：按名称获取存储键',
+                'CSRTConfig.getTimeout(name)：按名称获取超时时间',
+                'CSRTConfig.pageType()：获取当前页面类型',
+                'CSRTConsoleFilter 日志过滤工厂：可配置关键词 / 正则 / 白名单',
+                'CSRTConsoleFilter.enable() / disable()：动态开关过滤',
+                'CSRTConsoleFilter.setKeywords(list)：批量设置过滤关键词',
+                'CSRTConsoleFilter.setRegex(pattern)：切换到正则模式',
+                'CSRTConsoleFilter.addWhitelist(kw)：添加白名单，白名单命中的日志不过滤',
+                'CSRTConsoleFilter.restore()：完全恢复原生 console',
+                'privateLog.setMaxSize(n)：动态设置日志上限（默认 500 条）',
+                'privateLog.resetMaxSize()：重置为默认上限',
+                'privateLog.getStats()：获取日志统计（maxSize / errors / warnings / logs / listeners）',
+                'CSRTDatabase.delete(key)：删除键，并触发 watcher',
+                'CSRTDatabase.clear()：清空所有键，并对每个键触发 watcher',
+                'CSRTDatabase.unwatch(key)：移除 watcher',
+                'CSRTDatabase.transform(key, callback)：给键设置转换器',
+                'CSRTDatabase.untransform(key)：移除转换器',
+                'CSRTDatabase.size()：返回键数量',
+                'CSRTDatabase.forEach(callback)：遍历所有键值'
+            ],
+            '优化': [
+                'console 过滤从默认开启改为默认关闭：用户可主动 enable 后才生效',
+                'CSRTConsoleFilter 支持正则模式：setRegex(pattern)',
+                'CSRTConsoleFilter 支持白名单：命中的日志不过滤',
+                'privateLog 增加自动 trim：每次 add 后立即检查上限',
+                'privateLog.setMaxSize 立即对现有数组应用 trim',
+                'CSRTDatabase.set 先执行 transform 再写入，最后触发 watcher',
+                'CSRTDatabase.set 使用 oldValue === value 快速判断，避免无意义触发',
+                'console.error 保留原生行为，不受过滤影响',
+                'CSRTConfig 使用 Object.freeze 冻结配置对象，防止意外修改'
+            ],
+            '重构': [
+                '硬编码的 API 端点统一收敛到 CSRTConfig.api',
+                '硬编码的存储键统一收敛到 CSRTConfig.storage',
+                '硬编码的超时时间统一收敛到 CSRTConfig.timeout',
+                'console 过滤逻辑抽离为 CSRTConsoleFilter 工厂对象',
+                'privateLog 从 push 无限制改为 push 自动 trim',
+                'CSRTDatabase 补全 delete / clear / unwatch / transform / untransform / size / forEach',
+                'window.__CSRT 新增暴露 consoleFilter / Config 两个对象',
+                'window.__CSRT_CONFIG 全局别名，方便直接访问'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.6',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '统一 XHR 拦截器、Blob URL 兼容层、页面功能门控、VM 捕获重写、显示评论 ID',
+        details: {
+            '新功能': [
+                '统一 XHR 拦截器：XHRInterceptor 单一入口管理所有网络请求，避免多层嵌套',
+                'XHR 拦截器支持注册/注销：register(name, handler) / unregister(name)',
+                'XHR 拦截器支持三种返回值：false 阻止请求 / true 已处理 / undefined 继续',
+                'Blob URL 兼容层：BlobURLRegistry 修复作品替换器 Network Error',
+                'Blob URL 自动清理：5 分钟后自动 revoke 过期 URL',
+                'Blob URL fetch 修补：检测已失效的 blob URL 并记录日志',
+                '页面功能门控：PageFeatureGate 按页面类型（作品页/Gandi/主页/其他）动态加载功能',
+                'PageFeatureGate.allows(feature)：判断功能是否适用于当前页面',
+                'PageFeatureGate.getTabs()：根据页面类型返回 Tab 列表',
+                'VM 捕获重写：BFS 遍历 React Fiber，不劫持 Function.prototype.bind',
+                'VM 捕获支持三种方式：全局变量 / Fiber 遍历 / 30 秒超时',
+                '显示评论 ID：在评论区显示每条评论的 ID',
+                'CSRTConfig 统一配置：API 端点 / 页面特征 / 存储键集中管理',
+                'createLogFilter 日志过滤工厂：按关键词过滤',
+                '控制台过滤保留 console.error 可见（除非包含 CSRT 关键词）'
+            ],
+            '优化': [
+                'VM 捕获轮询策略：每 5 次尝试一次 Fiber 遍历，避免性能损耗',
+                'VM 捕获超时从 15 秒延长到 30 秒',
+                'privateLog 增加 maxSize 上限（500 条），避免内存泄漏',
+                'waitElement 通用等待选择器工具函数',
+                'waitForBody 超时保护（3 秒）',
+                'CSRTDatabase 增加 delete / clear 方法',
+                'pageType 缓存到 PageFeatureGate._pageType，避免重复判断'
+            ],
+            '重构': [
+                'XHR 拦截从多处独立劫持改为统一 XHRInterceptor 入口',
+                'VM 捕获从 Function.prototype.bind 劫持改为 BFS 遍历 Fiber',
+                '页面类型判断从函数散落改为 PageFeatureGate 统一管理',
+                '存储键从硬编码字符串改为 CSRTConfig.storage 常量',
+                'API 端点从硬编码字符串改为 CSRTConfig.api 常量',
+                '日志过滤从全禁用改为关键词过滤（保留原生日志）',
+                '控制台方法分类处理：log/warn/info 等过滤，groupEnd/time 等静默'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.5',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '云数据、排行榜、成就、经济合约、MMO广播、本地用户信息、日志过滤、动态 Tab 注入',
+        details: {
+            '新功能': [
+                '云数据管理：CCWData 面板，支持作品/用户云数据实时读写',
+                '排行榜面板：通过 gandi-main API 加载排行榜列表与记录',
+                '成就面板：展示成就列表，支持一键获得成就',
+                '经济合约面板：展示合约列表、余额、规则，支持执行规则与无偿注资',
+                'MMO 广播面板：支持广播黑名单过滤 + 手动发送广播',
+                '本地用户信息：读取/导入/导出/清除当前登录用户信息',
+                '日志面板增强：支持日志级别过滤（全部/日志/警告/错误）+ 自动刷新开关',
+                '动态 Tab 注入：检测到扩展时自动添加对应面板 Tab',
+                'CSRTDatabase 可 watch 数据存储：支持 watch / set / get / entries',
+                'TrapVM 5 秒后强制恢复 Function.prototype.bind：避免非作品页永久劫持',
+                'Promise.then 5 秒后强制恢复：避免非作品页永久劫持',
+                'CCW API 仅在作品页激活：避免非作品页无谓轮询',
+                '主页查看器与切换身份/伪装手机号互斥：避免冲突'
+            ],
+            '优化': [
+                '控制台改为过滤式输出：仅屏蔽包含 CSRT/csrt 的日志，保留原生日志',
+                'waitElement 辅助函数：通用等待选择器出现',
+                '私有日志系统增加 onChange 监听机制',
+                '日志面板自动刷新联动 privateLog.onChange',
+                '重写主页查看器劫持逻辑：避免多次覆写 send 造成递归',
+                'createToolWindow 使用 csrtFeatureList 动态构建 Tab',
+                'csrtActivateTab 通过 data-tab-id 精确定位 Tab 内容',
+                'ccwApi 的 api 方法仅覆盖关键 API，不破坏原方法'
+            ],
+            '重构': [
+                '从 setupExtensionInterceptor 中移除动态 Tab 注册逻辑，改为在扩展注入时注册',
+                'csrtFeatureList / csrtState 抽离为全局状态',
+                'userInfo 钩子与切换身份互斥：检测到「身份」时跳过 userInfo 钩子',
+                'injectGlassTheme 防重复注入：检查 #csrt-glass-theme 是否已存在',
+                '多处补丁增加 window.__csrt_xxx_patched 标记，避免重复劫持'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.4',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '破解未登录游玩、显示暂停、伪造 CCW API、主页查看器',
+        details: {
+            '新功能': [
+                '破解未登录游玩：未登录状态下允许运行作品',
+                '显示暂停：强制显示被隐藏的暂停按钮',
+                '伪造 CCW API：使关注、点赞、投币等 API 始终返回成功',
+                '主页查看器：展示封禁用户主页（封禁时间、解封时间等）',
+                '主页查看器支持注销用户（category=logoff）伪装成 ordinary',
+                'CWW API 投币数可配置：getCoins / setCoins',
+                '主页面查看器劫持 locked_user/detail / students/profile / creation/student/detail'
+            ],
+            '优化': [
+                'unblockGuest 提供菜单命令「运行作品 (未登录)」',
+                'showPause 通过 CSS 注入 style 标签，支持动态开关',
+                'ccwApi 通过 setInterval 轮询获取 ccwAPI 并覆写',
+                '主页查看器激活时检测切换身份 / 伪装手机号，避免冲突'
+            ],
+            '重构': [
+                'setupUnblockGuest 只提供菜单命令，不自动运行',
+                'setupShowPause 使用 style 标签 disable 属性动态开关',
+                'setupCCWAPI 使用 setInterval + 10s 超时保护'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.3',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '切换身份、允许未知扩展、CSS隐藏官方弹窗、Eureka 多模式加载',
+        details: {
+            '新功能': [
+                '切换身份：全新实现，替代原「伪装身份」，存储键改为「身份」',
+                '切换身份同时劫持 students/self/detail 和 study-community/member/detail 两个接口',
+                '允许未知扩展：基于 cj-allow-unknown-extensions，后台自动激活，无 UI',
+                '允许未知扩展通过劫持 Promise.then 捕获 extensionURLs',
+                '允许未知扩展通过劫持 XMLHttpRequest.open 拦截 bfs-web.ccw.site/extensions/ 请求',
+                '允许未知扩展：伪造扩展信息返回，自动允许加载',
+                'Eureka 支持三种加载方式：URL 加载、代码粘贴、文件上传',
+                'Eureka 仪表盘全新设计：标签页切换、已加载扩展列表、状态栏',
+                'Eureka 通过 script 标签加载扩展，更接近原生行为',
+                'CSRT 风格二选一对话框：版本回溯 vs 作品替换模式冲突时弹出',
+                '新增 CSS 隐藏 gandi_webgl-modal / browser-modal 官方弹窗'
+            ],
+            '优化': [
+                '版本回溯 + 作品替换同时开启时弹出模式选择对话框',
+                'showModeSelect 使用 CSRT 毛玻璃风格，非系统 confirm',
+                'showVersionSelect 使用固定定位 + 高 z-index 避免被遮挡',
+                'modeSelect 改为 flex 双按钮布局，带图标和描述文字',
+                'Eureka 仪表盘增加「已加载扩展」列表，区分自定义/官方',
+                'Eureka _loadViaScript 中注册扩展时同时记录 idToURLMapping',
+                '伪装手机号与切换身份可共存',
+                '重构 UI 一键操作：保留当前标签页、窗口位置和缩放',
+                '窗口位置和缩放持久化到 localStorage'
+            ],
+            '重构': [
+                '伪装身份 → 切换身份，存储键从 csrt_fake_identity 改为 身份',
+                '身份劫持同时覆盖 student 和 member 两个接口',
+                'Eureka 内嵌版从 _loadExtensionURL 改为 _loadViaScript 主路径',
+                'Eureka 增加 EurekaBlockType/TargetType/ReporterScope/ArgumentType 常量',
+                'Eureka _handleExtensionInfo 处理 menus 的 items 字符串自动转换为函数',
+                'setupAllowUnknownExtensions 无 UI 静默激活，仅记录日志'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.2',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: 'Eureka 内嵌、扩展注入检测、一键重构 UI、任务栏拖动修复',
+        details: {
+            '新功能': [
+                'Eureka 内嵌版：完整的 Eureka.js 核心内嵌，支持 URL 加载扩展',
+                '扩展注入检测：CSRTExtensionInjector 类，patch VM 的 compilerRegisterExtension',
+                '一键重构 UI：reconstructUI() 保留标签页、位置、缩放重建整个窗口',
+                '扩展状态检测增强：通过注入器 on() 监听扩展加载事件',
+                '任务栏拖动修复：性能监控面板可自由拖动，避免与页面冲突',
+                '重新初始化入口：initEureka() 自动捕获 VM 并应用补丁',
+                'Eureka 仪表盘：显示已加载扩展列表 + 版本信息 + 状态栏',
+                'Eureka 支持 URL 加载扩展',
+                'Eureka 通过 vmPromise 复用主脚本的 VM 捕获'
+            ],
+            '优化': [
+                '性能监控面板增加鼠标/触摸双拖动支持',
+                '扩展检测合并 extensionManager + gandi 外部扩展 + blocks 扫描',
+                '工具窗口位置和缩放持久化',
+                '重构 UI 后自动恢复当前标签页和窗口位置'
+            ],
+            '重构': [
+                'detectExtensions 统一返回 hasCCWData / hasGandiEconomy / hasGandiAchievement',
+                'hasCCWDataExtension 等函数改为调用 detectExtensions',
+                'EurekaEmbedded 独立对象，暴露 window.EurekaEmbedded',
+                'extensionInjector 独立对象，暴露 window.__CSRT_extensionInjector',
+                'setupExtensionInjectorPatch 在 vmPromise 完成后应用补丁'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.1',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '变量锁定、作品替换器二选一、变量管理修复、窗口居中修复',
+        details: {
+            '新功能': [
+                '变量锁定：checkVariableFrozen / toggleVariableFrozen 完整实现',
+                '变量锁定使用 Object.defineProperty 劫持 value setter',
+                '变量锁定 UI：锁定后显示 🔒、值输入框禁用、名称划线',
+                '作品替换器二选一对话框：版本回溯 vs 替换模式冲突时弹出',
+                '模式选择对话框：CSRT 毛玻璃风格，带图标和描述',
+                '变量列表锁定状态持久化：使用 _csrt_frozen 标记'
+            ],
+            '优化': [
+                'toggleVariableFrozen 支持与原属性描述符互换',
+                'updateVariable 检查锁定状态，拒绝修改',
+                '锁定变量的输入框自动 disabled',
+                '锁定变量名称显示划线样式',
+                '变量列表刷新后保留锁定状态',
+                '窗口居中修复：centerWindow 保持缩放比例'
+            ],
+            '重构': [
+                '变量锁定加入 _csrt_original_descriptor 保存原描述符',
+                '变量锁定支持与 CSense 的 LockedByCSense 符号兼容',
+                '扩展拦截窗口按钮添加 data-action 属性',
+                '全部允许/拒绝按钮改用 data-action 识别',
+                '模式选择改为 Promise 化，支持 await'
+            ]
+        }
+    },
+    {
+        version: 'v2.9.0',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '元素检查器、作品替换器整合重构、毛玻璃 UI 完整版',
+        details: {
+            '新功能': [
+                '元素检查器：可视化查看页面元素信息、HTML 结构、CSS 样式',
+                '元素检查器支持复制选择器与删除元素',
+                '元素检查器快捷键：ESC 退出，激活时禁用页面左键点击',
+                '作品替换器重构：ReplacerStorage 统一存储管理',
+                '作品替换器双模式：支持拦截 XHR 或劫持 loadProject',
+                '版本回溯：上传替换文件后可在拦截窗口选择加载历史版本',
+                '动态替换：不刷新页面即可切换当前作品（dynamicReplace）',
+                '旧数据迁移：自动将「作品替换_*」旧格式迁移到「csrt_project_replacer_*」',
+                '悬浮球重做：采用项目 LOGO SVG + 径向光晕 + 毛玻璃质感',
+                '扩展拦截窗口标签化：自定义/官方扩展用颜色区分显示'
+            ],
+            '优化': [
+                '模式切换与版本回溯按钮整合到替换器面板',
+                '增加替换器使用提示文案，说明当前状态',
+                '工具窗口标题栏集成 LOGO SVG，与整体 UI 统一',
+                '所有面板按钮统一采用 csrt-glass-btn 组件',
+                '毛玻璃主题样式抽离到 injectGlassTheme()，统一维护'
+            ],
+            '重构': [
+                'VM 捕获简化：getVM 只负责返回 vmInstance 或等待 vmPromise',
+                '移除 legacy 身份标识的独立菜单，统一走 changeFakeIdentity()',
+                '元素检查器独立模块：highlight / tag / panel / confirm 四层 UI 结构',
+                'ReplacerStorage 抽离为独立对象，方便外部 API 调用',
+                '删除大量冗余代码，版本号从 2.8.9 回归正式 2.9.0'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.9',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '毛玻璃 UI 完整版、作品替换器、作品下载、捕获列表',
+        details: {
+            '新功能': [
+                '毛玻璃 UI 完整版：injectGlassTheme() 注入玻璃拟态主题',
+                '作品替换器：ReplacerStorage 分块 base64 存储',
+                '版本回溯：拦截窗口选择历史版本时支持自定义选择',
+                '动态替换：无需刷新页面即可切换当前作品',
+                '盗作神器（作品捕获）：loadProject 时自动捕获作品，最多保存最近 20 个',
+                '捕获列表查看：showCapturedList() 支持下载单个或全部捕获的作品',
+                '下载作品：一键导出当前作品为 .sb3（含资源并发下载）',
+                '下载所有角色：将所有角色导出为 .sprite3 或打包 ZIP',
+                '悬浮球改版：SVG LOGO + 径向光晕 + 毛玻璃质感',
+                '窗口缩放控制：− / + / ⟲ 按钮，支持 80%~150% 缩放',
+                '扩展检测增强：CCWData / 经济合约 / 成就排行 多名称匹配',
+                '性能监控看板：延迟 / FPS / 请求数 / 运行时长，可拖动',
+                '元素检查器样式：为后续元素审查功能预留'
+            ],
+            '优化': [
+                '所有 UI 组件统一采用 csrt-* class 命名',
+                '标签切换带 csrt-panel-pop 弹入动画',
+                '窗口出现带 csrt-window-appear 动画',
+                '悬浮球平滑移动缓动系数调整为 0.2',
+                '列表项 hover 右移 4px 动效',
+                '扩展拦截窗口显示自定义/官方扩展颜色标签'
+            ],
+            '重构': [
+                'UI 样式统一抽离到 injectGlassTheme()，通过 class 复用',
+                'ReplacerStorage 抽离为独立对象',
+                '旧替换器数据自动迁移（「作品替换_*」→「csrt_project_replacer_*」）',
+                '伪装身份菜单独立为 registerFakeIdentityMenu()',
+                '新增 changeIdentity() 独立函数，支持 clear 命令清除'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.3',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '扩展检测逻辑重构：参考 CSense 判断，wildExtensions 为主要依据',
+        details: {
+            '新功能': [
+                '扩展检测逻辑重构：参考 CSense，以 gandi.wildExtensions 作为自定义扩展的主要判断依据',
+                '官方扩展判断：仅将不在 wildExtensions 中的 extensions 数组项标记为官方',
+                '扩展来源标注：customExtensions 来源统一标注为「gandi.wildExtensions (CSense主要)」',
+                'VM 捕获优化：getVM 失败时不再直接抛出，而是继续等待 vmPromise',
+                'window.vm 全局暴露：notifyVM 时自动挂载到 window.vm 和 unsafeWindow.vm'
+            ],
+            '优化': [
+                'info.internalExtensions 过滤逻辑：确保 wildExtensions 中的扩展不出现在官方列表中',
+                'loadedExtensions 补充逻辑：仅处理未在 wildExtensions / internalExtensions 中出现的扩展',
+                '扩展拦截窗口的 loadProject 劫持同步采用 CSense 判断逻辑',
+                'targets 扫描仅用于补充 allExtensions，不影响自定义/官方判定'
+            ],
+            '重构': [
+                'getProjectInfo 中扩展分类流程重写：先处理 wildExtensions，再处理 extensions，最后补充 loadedExtensions',
+                'setupExtensionInterceptor 中的 extMap 分类改为基于 wildExtNames 判断'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.2',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: 'VM 捕获重写、pageType 提前判断、getVM 改为 await 模式',
+        details: {
+            '新功能': [
+                'VM 捕获重写：新增 vmResolvers 数组，支持多个监听器同时等待 VM 就绪',
+                'getVM 改为 await 模式：优先检查缓存 → Eureka → 全局变量 → DOM → Bind 劫持',
+                'notifyVM 时自动挂载 window.vm 与 unsafeWindow.vm，方便调试',
+                'getVM 失败时通过 privateLog 记录，而不是直接 throw'
+            ],
+            '优化': [
+                'trapViaBind 检测条件简化为 self?.editingTarget !== undefined && self?.runtime !== undefined',
+                'getReduxStoreFromDOM 中的递归查找函数重命名为 findReduxStore / searchReactTree',
+                'pageType 判断提前，isProfile / isOther 分支处理更早返回'
+            ],
+            '重构': [
+                '移除对 trapViaBindReject 的实际使用（保留占位）',
+                'getVM 内部逻辑不再依赖 vmPromise 的 resolve 顺序，改为多路径依次尝试'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.1-glass-full',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '毛玻璃 UI 完整版：玻璃拟态主题、缩放控制、完整变量管理、扩展代码查看器',
+        details: {
+            '新功能': [
+                '毛玻璃主题系统：injectGlassTheme() 注入完整玻璃拟态样式',
+                '窗口缩放控制：支持 80%~150% 缩放，带 −/+ 按钮与百分比显示',
+                '悬浮球改版：SVG 图标 + 径向光晕 + 玻璃质感',
+                '变量管理完整面板：精灵/克隆体选择、搜索过滤、折叠展开',
+                '扩展代码查看器：独立的代码查看窗口，与编辑器分离',
+                '扩展状态总览：数据修改面板顶部显示 CCWData / 经济合约 / 成就排行 加载状态',
+                'Toast 通知改版：毛玻璃样式 + 淡入淡出动画',
+                '扩展拦截窗口毛玻璃化：带警告提示、加载状态徽章、允许/拒绝按钮'
+            ],
+            '优化': [
+                '窗口创建时自动计算居中位置，适配不同屏幕',
+                '窗口拖动时保持缩放比例，transform-origin 为 top left',
+                '标签页切换带 csrt-panel-pop 弹入动画',
+                '悬浮球平滑移动缓动系数调整为 0.2，更自然',
+                '扩展列表项 hover 右移 4px 动效',
+                '毛玻璃按钮支持 primary / success / danger / warning / info 五种变体',
+                '输入框 focus 时显示蓝色光晕边框'
+            ],
+            '重构': [
+                'UI 样式统一抽离到 injectGlassTheme()，通过 class 复用',
+                'VM 捕获机制重写：新增 notifyVM() 多监听器支持',
+                '伪装身份功能修复：支持旧数据迁移、自动获取用户信息',
+                '伪装身份菜单独立为 registerFakeIdentityMenu()',
+                '新增 changeFakeIdentity() 独立函数，支持 clear 命令清除'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.1',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: 'VM 捕获优化、成就排行、变量折叠',
+        details: {
+            '新功能': [
+                'VM 捕获优化：新增 notifyVM / vmResolvers，支持多个监听器',
+                '成就管理：查看作品成就列表、获得成就、修改额外数据、搜索过滤',
+                '排行榜管理：查看排行榜列表、记录排名、修改分数、搜索过滤',
+                'hasGandiAchievementExtension 检测：支持 gandiachievement / gandileaderboard 两种 opcode',
+                '作品信息面板新增成就/排行加载状态显示'
+            ],
+            '优化': [
+                'VM 捕获超时 15 秒内自动 reject，避免无限等待',
+                'getVM 优先从 Eureka / 全局变量 / DOM / Bind 依次尝试',
+                '变量列表超过 20 个时自动折叠，支持展开全部'
+            ],
+            '重构': [
+                'getProjectInfo 新增 hasGandiAchievement 字段',
+                '暴露 API 新增 hasGandiAchievementExtension、getCachedVMInfo、refreshDataModifyData'
+            ]
+        }
+    },
+    {
+        version: 'v2.8.0',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '成就排行系统、性能优化、缓存机制',
+        details: {
+            '新功能': [
+                '成就管理：查看作品成就列表、获得成就、修改额外数据、搜索过滤',
+                '排行榜管理：查看排行榜列表、记录排名、修改分数、搜索过滤',
+                'hasGandiAchievementExtension 检测：支持 gandiachievement / gandileaderboard 两种 opcode',
+                '成就/排行扩展检测结果加入 cachedVMInfo 缓存'
+            ],
+            '优化': [
+                '作品信息面板新增成就/排行加载状态显示',
+                '扩展拦截窗口代码精简，状态徽章样式统一'
+            ],
+            '重构': [
+                'getProjectInfo 新增 hasGandiAchievement 字段',
+                '暴露 API 新增 hasGandiAchievementExtension'
+            ]
+        }
+    },
+    {
+        version: 'v2.7.0',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '页面适配扩展、性能优化、缓存机制、刷量测试脚本',
+        details: {
+            '新功能': [
+                '其他页面适配：非作品/个人页也能显示基础信息面板',
+                'VM 信息缓存：cachedVMInfo 缓存 VM 实例与扩展检测结果',
+                '数据修改面板缓存：dataModifyPanelInstance 复用面板实例',
+                '刷新数据接口：refreshDataModifyData() 可手动刷新变量列表',
+                '代码执行面板新增刷量测试：内置作品 ID 刷量脚本'
+            ],
+            '优化': [
+                'getProjectInfo 新增 isOther 分支，完善页面类型判断',
+                'getPageType 支持 gandi 页面类型识别',
+                '数据修改面板 Tab 切换时复用已有实例，减少重复渲染'
+            ],
+            '重构': [
+                '将 CCWData / 经济合约检测结果统一缓存到 cachedVMInfo',
+                '数据修改面板改为单例模式，避免多次创建导致的性能损耗'
+            ]
+        }
+    },
+    {
+        version: 'v2.6.1',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '伪装手机号、作品替换器、角色插入器、性能监控、数据修改、下载源码',
+        details: {
+            '新功能': [
+                '伪装手机号：伪装认证等级 / 手机号 / 信誉 / QQ',
+                '伪装身份：可伪装成指定用户的 oid / id / name / avatar',
+                '作品替换器：上传本地 .sb3，访问任意作品时自动替换',
+                '角色插入器：向当前作品插入本地 .sprite3 角色文件',
+                '性能监控：实时显示延迟 / FPS / 请求数，可拖动面板',
+                '数据修改面板：变量管理 + 变量锁定 + 折叠展开',
+                '云数据管理：CCWData 作品 / 用户云变量读写',
+                '经济合约管理：查看合约列表、规则详情、执行规则',
+                '下载项目源码：一键导出当前作品为 .sb3',
+                '附加功能面板：无视黑名单 / 屏蔽协作记录 / 性能监控 / 伪装手机号 开关',
+                '插件管理模块：内置研究插件 + 自定义插件 URL 加载',
+                '油猴菜单：伪装身份 / 作品替换器 / 角色插入器 快捷操作'
+            ],
+            '优化': [
+                'VM 捕获新增 Redux Store from DOM 兜底',
+                'VM 捕获超时从无限等待改为 15 秒',
+                '扩展检测合并 wildExtensions / extensionURLs / loadedExtensions / targets.scan 多来源',
+                '作品信息面板新增 CCWData / 经济合约 加载状态',
+                '变量列表超过 20 个时自动折叠，支持展开全部'
+            ],
+            '重构': [
+                '控制台日志全部禁用，改为私有日志系统',
+                '悬浮球增加平滑移动动画 + 触摸支持',
+                '工具窗口支持拖动、Tab 切换'
+            ]
+        }
+    },
+    {
+        version: 'v2.5.0',
+        category: 'release',
+        categoryLabel: '首发',
+        title: 'CSRT 项目正式启动，首个可运行版本',
+        details: {
+            '首发': [
+                'VM 捕获：劫持 Function.prototype.bind',
+                '扩展注册劫持：compilerRegisterExtension',
+                '自定义扩展判断：6 种方法综合判定',
+                '作品信息获取：VM / 扩展 / 恶意模式检测',
+                '扩展代码查看 / 修改：GM_xmlhttpRequest 拉取 + 重新加载',
+                '扩展拦截窗口：加载项目前审查扩展，可允许 / 拒绝',
+                '悬浮球 + 工具窗口基础 UI',
+                '代码执行面板：eval 执行任意 JS（安全研究用）',
+                '审查日志面板：私有日志展示'
+            ]
+        }
+    },
+    {
+        version: 'v2.4.1',
+        category: 'fix',
+        categoryLabel: '修复',
+        title: '拖动悬浮球不再误触发面板',
+        details: {
+            '修复': [
+                '引入 hasPositionChanged 标记，位移 > 2px 视为拖动',
+                'mouseup 时只有未拖动才触发 toggleToolWindow()',
+                '触摸事件同步加入 touchHasMoved 判断'
+            ]
+        }
+    },
+    {
+        version: 'v2.4.0',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '精确获取自定义扩展（4 种方法）',
+        details: {
+            '新功能': [
+                '扩展注册劫持：捕获 compilerRegisterExtension',
+                '方法 1：runtime.getProjectData() 读取 extensions / extensionURLs / gandi.wildExtensions',
+                '方法 2：extensionManager._loadedExtensions 读取已加载扩展',
+                '方法 3：扩展注册劫持读取注册信息',
+                '方法 4：遍历 targets[].blocks 扫描使用的扩展',
+                '自定义扩展字段补全：isLoaded / source / data / isCustom',
+                '代码查看器新增 9 种可疑模式检测'
+            ]
+        }
+    },
+    {
+        version: 'v2.3.0',
+        category: 'feature',
+        categoryLabel: '新功能',
+        title: '精确获取 VM 和扩展信息 + 修改扩展代码',
+        details: {
+            '新功能': [
+                'VM 捕获机制：劫持 Function.prototype.bind',
+                'getProjectInfo() 完整版：URL / 创作者 / VM / 扩展',
+                'modifyExtensionCode()：在线修改自定义扩展并重新加载',
+                '代码查看器 + 修改对话框',
+                '__CSRT API 暴露'
+            ]
+        }
+    },
+    {
+        version: 'v2.1.0',
+        category: 'optimize',
+        categoryLabel: '优化',
+        title: '悬浮球流畅跟随鼠标',
+        details: {
+            '优化': [
+                'requestAnimationFrame 平滑跟随（缓动 0.25）',
+                '触摸事件同步优化，移动端跟手'
+            ]
+        }
+    },
+    {
+        version: 'v2.0.0',
+        category: 'refactor',
+        categoryLabel: '重构',
+        title: '改名 SRT，改为恶意扩展审查专用',
+        details: {
+            '重构': [
+                '禁用所有控制台输出',
+                '新增私有日志系统 privateLog',
+                '新增可拖动悬浮球',
+                '新增扩展审查面板 + 恶意代码检测（14 种可疑模式）',
+                '新增作品信息 / 代码执行 / 审查日志面板'
+            ]
+        }
+    },
+    {
+        version: 'v1.0.0',
+        category: 'release',
+        categoryLabel: '首发',
+        title: 'CCW 安全研究工具首版发布',
+        details: {
+            '首发': [
+                '浮动窗口 UI',
+                '代码执行器（eval）',
+                '插件管理器（URL 加载）',
+                'Ctrl+Shift+E 快捷键'
+            ]
+        }
+    }
+];
+
+/* ==================== 版本下载数据 ==================== */
+const downloadsData = [
+    { version: 'v2.9.8', url: 'csrt-versions/2.9.8.user.js', latest: true },
+    { version: 'v2.9.7', url: 'csrt-versions/2.9.7.user.js' },
+    { version: 'v2.9.6', url: 'csrt-versions/2.9.6.user.js' },
+    { version: 'v2.9.5', url: 'csrt-versions/2.9.5.user.js' },
+    { version: 'v2.9.4', url: 'csrt-versions/2.9.4.user.js' },
+    { version: 'v2.9.3', url: 'csrt-versions/2.9.3.user.js' },
+    { version: 'v2.9.2', url: 'csrt-versions/2.9.2.user.js' },
+    { version: 'v2.9.1', url: 'csrt-versions/2.9.1.user.js' },
+    { version: 'v2.9.0', url: 'csrt-versions/2.9.0.user.js' },
+    { version: 'v2.8.9', url: 'csrt-versions/2.8.9.user.js' },
+    { version: 'v2.8.3', url: 'csrt-versions/2.8.3.user.js' },
+    { version: 'v2.8.2', url: 'csrt-versions/2.8.2.user.js' },
+    { version: 'v2.8.1', url: 'csrt-versions/2.8.1.user.js' },
+    { version: 'v2.8.0', url: 'csrt-versions/2.8.0.user.js' },
+    { version: 'v2.7.0', url: 'csrt-versions/2.7.0.user.js' },
+    { version: 'v2.6.1', url: 'csrt-versions/2.6.1.user.js' },
+    { version: 'v2.5.0', url: 'csrt-versions/2.5.0.user.js' },
+    { version: 'v2.4.1', url: 'csrt-versions/2.4.1.user.js' },
+    { version: 'v2.4.0', url: 'csrt-versions/2.4.0.user.js' },
+    { version: 'v2.3.0', url: 'csrt-versions/2.3.0.user.js' },
+    { version: 'v2.1.0', url: 'csrt-versions/2.1.0.user.js' },
+    { version: 'v2.0.0', url: 'csrt-versions/2.0.0.user.js' },
+    { version: 'v1.0.0', url: 'csrt-versions/1.0.0.user.js' }
+];
+
+const DOWNLOADS_SHOW_LIMIT = 5;
+let downloadsExpanded = false;
+
+/* ==================== 辅助脚本数据 ==================== */
+const auxScriptsData = [
+    {
+        id: 'aux-manager',
+        name: '辅助管理器',
+        icon: '🔌',
+        version: 'v1.0.0',
+        desc: '检测已安装的辅助脚本、冲突与运行状态',
+        status: 'new',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/aux-manager-1.0.0.user.js'
+    },
+    {
+        id: 'env',
+        name: '环境适配层',
+        icon: '🌍',
+        version: 'v3.0.0',
+        desc: 'GPU 检测、MutationObserver 调度、崩溃记录',
+        status: 'stable',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/env-3.0.0.user.js'
+    },
+    {
+        id: 'perf',
+        name: '性能优化',
+        icon: '⚡',
+        version: 'v2.0.0',
+        desc: '日志上限、懒加载、XHR LRU 缓存、变量 watcher 节流',
+        status: 'stable',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/perf-2.0.0.user.js'
+    },
+    {
+        id: 'more-tabs',
+        name: '更多 Tab',
+        icon: '⚙️',
+        version: 'v1.0.2',
+        desc: '设置 / 关于 / 变量撤销 三合一',
+        status: 'recommended',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/more-tabs-1.0.2.user.js'
+    },
+    {
+        id: 'settings',
+        name: '设置页面',
+        icon: '⚙️',
+        version: 'v1.0.1',
+        desc: '存储管理 + 配置导入导出 + 快捷键列表',
+        status: 'standalone',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/settings-1.0.1.user.js',
+        note: '与「更多 Tab」功能重叠，二选一'
+    },
+    {
+        id: 'about',
+        name: '关于面板',
+        icon: 'ℹ️',
+        version: 'v1.4.4',
+        desc: '主题切换 + 运行状态 + 快捷操作',
+        status: 'standalone',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/about-1.4.4.user.js',
+        note: '与「更多 Tab」功能重叠，二选一'
+    },
+    {
+        id: 'var-undo',
+        name: '变量撤销',
+        icon: '↩️',
+        version: 'v1.0.2',
+        desc: '变量修改历史 + 一键回滚',
+        status: 'standalone',
+        url: 'https://m.ccw.site/gandi/CSRT/aux/var-undo-1.0.2.user.js',
+        note: '与「更多 Tab」功能重叠，二选一'
+    }
+];
+
+const AUX_STATUS_MAP = {
+    new:          { label: '新', color: '#8b5cf6', bg: 'rgba(139,92,246,0.15)' },
+    stable:       { label: '稳定', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
+    recommended:  { label: '推荐', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+    standalone:   { label: '独立', color: '#6b7280', bg: 'rgba(107,114,128,0.15)' },
+    beta:         { label: '测试', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
+};
+
+const AUX_SHOW_LIMIT = 4;
+let auxExpanded = false;
+
+/* ==================== 功能列表数据 ==================== */
+const featuresData = [
+    { icon: '🔌', name: '扩展拦截', desc: '加载项目前审查自定义扩展，可逐个允许或拒绝', status: 'stable' },
+    { icon: '✏️', name: '代码修改', desc: '在线查看并修改自定义扩展代码，实时重新加载', status: 'stable' },
+    { icon: '🔄', name: '作品替换器', desc: '上传本地 .sb3 文件替换任意作品，支持双模式', status: 'stable' },
+    { icon: '📜', name: '版本回溯', desc: '加载作品的历史版本，支持选择任意时间点', status: 'stable' },
+    { icon: '🎯', name: '变量管理', desc: '查看、修改、锁定作品中的变量，支持折叠展开', status: 'stable' },
+    { icon: '🔒', name: '变量锁定', desc: '锁定变量值，防止被作品代码修改', status: 'stable' },
+    { icon: '🔍', name: '元素检查器', desc: '可视化查看页面元素信息、HTML 结构和 CSS 样式', status: 'stable' },
+    { icon: '⚡', name: 'Eureka 内嵌', desc: '内置 Eureka 扩展加载器，支持 URL/代码/文件加载', status: 'stable' },
+    { icon: '☁️', name: '云数据管理', desc: '实时读写作品云变量和用户云数据', status: 'stable' },
+    { icon: '🏆', name: '排行榜管理', desc: '查看排行榜记录，支持修改自己的分数', status: 'stable' },
+    { icon: '🏅', name: '成就管理', desc: '查看作品成就列表，一键获得任意成就', status: 'stable' },
+    { icon: '💰', name: '经济合约', desc: '查看合约列表、余额、规则，支持执行规则', status: 'stable' },
+    { icon: '🎮', name: 'MMO 广播', desc: '支持广播黑名单过滤和手动发送广播', status: 'stable' },
+    { icon: '👤', name: '主页查看器', desc: '查看封禁用户的完整主页信息', status: 'stable' },
+    { icon: '🎭', name: '切换身份', desc: '伪装成指定用户，绕过权限限制', status: 'stable' },
+    { icon: '📱', name: '伪装手机号', desc: '伪装认证等级、手机号、信誉分数', status: 'stable' },
+    { icon: '🚫', name: '无视黑名单', desc: '绕过黑名单检测，显示为未屏蔽状态', status: 'stable' },
+    { icon: '🔇', name: '屏蔽协作', desc: '屏蔽协作中的修改、进入、退出通知', status: 'stable' },
+    { icon: '💬', name: '显示评论 ID', desc: '在评论区显示每条评论的 ID', status: 'stable' },
+    { icon: '📊', name: '性能监控', desc: '实时显示网络延迟、FPS、请求数、运行时长', status: 'stable' },
+    { icon: '🔧', name: '伪造 CCW API', desc: '使关注、点赞、投币等 API 始终返回成功', status: 'stable' },
+    { icon: '⏸️', name: '显示暂停', desc: '强制显示被隐藏的暂停按钮', status: 'stable' },
+    { icon: '🎮', name: '破解未登录游玩', desc: '未登录状态下允许运行作品', status: 'stable' },
+    { icon: '🛡️', name: '防 CSense 检测', desc: '阻止第三方反作弊扩展检测到 CSRT', status: 'beta' }
+];
+
+/* ==================== 文档数据 ==================== */
+const docsData = [
+    {
+        id: 'quickstart',
+        title: '快速开始',
+        icon: '🚀',
+        content: `
+            <h2>🚀 快速开始</h2>
+            <p>CSRT 是一款面向共创世界（CCW）的安全研究工具，通过 Tampermonkey 油猴脚本运行。</p>
+
+            <h3>环境要求</h3>
+            <ul>
+                <li>浏览器：Chrome / Edge / Firefox（推荐 Chrome 100+）</li>
+                <li>扩展：Tampermonkey（油猴）</li>
+                <li>平台：共创世界 <a href="https://www.ccw.site/" target="_blank">www.ccw.site</a></li>
+            </ul>
+
+            <h3>安装步骤</h3>
+            <ol>
+                <li>安装 Tampermonkey 浏览器扩展</li>
+                <li>打开 CSRT 脚本文件（.user.js）</li>
+                <li>Tampermonkey 会自动弹出安装页面，点击「安装」</li>
+                <li>访问 CCW 任意页面，右下角会出现 CSRT 悬浮球</li>
+            </ol>
+
+            <h3>打开面板</h3>
+            <p>三种方式：</p>
+            <ul>
+                <li>点击右下角的悬浮球</li>
+                <li>按快捷键 <code>Ctrl + Shift + E</code></li>
+                <li>通过油猴菜单命令</li>
+            </ul>
+
+            <h3>基本使用</h3>
+            <p>打开面板后，顶部是 Tab 导航，包含：</p>
+            <ul>
+                <li><strong>作品信息</strong>：查看当前作品的 ID、创作者、扩展列表</li>
+                <li><strong>扩展审查</strong>：扫描并审查自定义扩展</li>
+                <li><strong>附加功能</strong>：开关各类功能</li>
+                <li><strong>数据修改</strong>：管理变量</li>
+                <li><strong>代码执行</strong>：运行任意 JS 代码</li>
+                <li><strong>审查日志</strong>：查看 CSRT 的运行日志</li>
+            </ul>
+        `
+    },
+    {
+        id: 'install',
+        title: '安装指南',
+        icon: '📦',
+        content: `
+            <h2>📦 安装指南</h2>
+
+            <h3>Tampermonkey 安装</h3>
+            <p>访问对应浏览器的扩展商店：</p>
+            <table>
+                <tr><th>浏览器</th><th>安装方式</th></tr>
+                <tr><td>Chrome</td><td>Chrome 网上应用店搜索 Tampermonkey</td></tr>
+                <tr><td>Edge</td><td>Edge 加载项商店搜索 Tampermonkey</td></tr>
+                <tr><td>Firefox</td><td>Firefox Add-ons 搜索 Tampermonkey</td></tr>
+            </table>
+
+            <h3>CSRT 安装</h3>
+            <ol>
+                <li>下载 CSRT 脚本文件（CSRT pro - CCW Security Research Tool.user.js）</li>
+                <li>拖入浏览器窗口，或通过 Tampermonkey 面板「实用工具 → 导入」</li>
+                <li>确认安装</li>
+            </ol>
+
+            <h3>验证安装</h3>
+            <p>访问 CCW 任意页面，打开浏览器控制台，输入：</p>
+            <pre><code>__CSRT.version</code></pre>
+            <p>应返回当前版本号，如 <code>"2.9.7"</code>。</p>
+
+            <h3>常见安装问题</h3>
+            <ul>
+                <li><strong>悬浮球不显示</strong>：检查 Tampermonkey 是否启用、脚本是否匹配当前页面</li>
+                <li><strong>快捷键无效</strong>：可能被其他扩展占用，改用悬浮球</li>
+                <li><strong>控制台报错</strong>：检查是否有其他 CCW 脚本冲突</li>
+            </ul>
+        `
+    },
+    {
+        id: 'features',
+        title: '核心功能',
+        icon: '⚙️',
+        content: `
+            <h2>⚙️ 核心功能</h2>
+
+            <h3>扩展拦截</h3>
+            <p>在作品加载前，拦截所有自定义扩展，弹出审查窗口，你可以：</p>
+            <ul>
+                <li>查看每个扩展的 URL 和源码</li>
+                <li>在线修改扩展代码后重新加载</li>
+                <li>逐个「允许」或「拒绝」</li>
+                <li>一键「全部允许」或「全部拒绝」</li>
+            </ul>
+
+            <h3>作品替换器</h3>
+            <p>上传本地 .sb3 文件，访问任意作品时自动替换。支持两种模式：</p>
+            <ul>
+                <li><strong>拦截 XHR</strong>：修改作品详情的响应</li>
+                <li><strong>拦截 loadProject</strong>：直接替换 VM 加载的项目</li>
+            </ul>
+
+            <h3>变量管理</h3>
+            <p>查看当前作品中所有变量（舞台 + 角色 + 克隆体）：</p>
+            <ul>
+                <li>修改变量值（实时生效）</li>
+                <li>锁定变量（防止被作品代码修改）</li>
+                <li>搜索和折叠大量变量</li>
+            </ul>
+
+            <h3>Eureka 内嵌</h3>
+            <p>内置 Eureka 扩展加载器，支持三种加载方式：</p>
+            <ul>
+                <li>URL 加载</li>
+                <li>粘贴代码</li>
+                <li>上传 .js 文件</li>
+            </ul>
+
+            <h3>云数据 / 排行榜 / 成就 / 经济合约</h3>
+            <p>当作品加载对应扩展时，CSRT 会自动添加这些面板，可实时读写数据。</p>
+        `
+    },
+    {
+        id: 'aux-scripts',
+        title: '辅助脚本',
+        icon: '🔌',
+        content: `
+            <h2>🔌 辅助脚本</h2>
+            <p>辅助脚本是独立于主脚本的扩展，用于增强 CSRT 的能力。它们通过 <code>window.__CSRT</code> 桥接主脚本，<strong>不修改主脚本本身</strong>。</p>
+
+            <h3>推荐组合</h3>
+            <table>
+                <tr><th>脚本</th><th>作用</th><th>必需？</th></tr>
+                <tr><td>🔌 辅助管理器</td><td>检测已安装的辅助脚本、冲突与运行状态</td><td>✅ 推荐</td></tr>
+                <tr><td>🌍 环境适配层</td><td>GPU 检测、MutationObserver 调度、崩溃记录</td><td>可选</td></tr>
+                <tr><td>⚡ 性能优化</td><td>日志上限、懒加载、XHR 缓存</td><td>可选</td></tr>
+                <tr><td>⚙️ 更多 Tab</td><td>设置 / 关于 / 变量撤销 三合一</td><td>✅ 推荐</td></tr>
+            </table>
+
+            <h3>注意：功能重叠</h3>
+            <p><strong>「更多 Tab」</strong>已经包含了「设置页面」、「关于面板」、「变量撤销」三个独立脚本的功能。</p>
+            <p>如果你装了三合一版，<strong>不需要再装</strong>那三个独立脚本，否则会出现重复 Tab。</p>
+
+            <h3>如何选择？</h3>
+            <ul>
+                <li><strong>想要极简</strong>：只装「辅助管理器」+「更多 Tab」</li>
+                <li><strong>想要全部功能</strong>：辅助管理器 + 环境适配 + 性能优化 + 更多 Tab</li>
+                <li><strong>想要 DIY</strong>：装独立的三个脚本，只挑你需要的</li>
+            </ul>
+        `
+    },
+    {
+        id: 'api',
+        title: 'API 参考',
+        icon: '🔧',
+        content: `
+            <h2>🔧 API 参考</h2>
+            <p>CSRT 通过 <code>window.__CSRT</code> 暴露 API，可在控制台调用。</p>
+
+            <h3>基础信息</h3>
+            <pre><code>__CSRT.version          // 版本号
+__CSRT.name             // 脚本名
+__CSRT.author           // 作者
+__CSRT.getPageType()    // 当前页面类型</code></pre>
+
+            <h3>VM 相关</h3>
+            <pre><code>__CSRT.getVM()          // 获取 VM 实例（Promise）
+__CSRT.vmInstance()     // 获取当前 VM（同步）
+__CSRT.vmPromise        // VM Promise</code></pre>
+
+            <h3>作品信息</h3>
+            <pre><code>await __CSRT.getProjectInfo()  // 获取作品完整信息
+__CSRT.extractProjectIdFromUrl()  // 从 URL 提取作品 ID</code></pre>
+
+            <h3>扩展操作</h3>
+            <pre><code>await __CSRT.getExtensionCode('extName')     // 获取扩展代码
+await __CSRT.modifyExtensionCode('extName', 'newCode')  // 修改扩展</code></pre>
+
+            <h3>作品导出</h3>
+            <pre><code>await __CSRT.assets.saveProject()      // 导出为 .sb3
+await __CSRT.assets.saveSprite(id)     // 导出单个角色
+await __CSRT.assets.saveAllSprites()   // 导出全部角色为 ZIP
+await __CSRT.assets.getSpriteList()    // 获取角色列表</code></pre>
+
+            <h3>工具函数</h3>
+            <pre><code>__CSRT.showToast('消息')       // 显示 Toast
+__CSRT.toggleTool()             // 切换面板显示
+__CSRT.privateLog.getLogs()     // 获取日志</code></pre>
+        `
+    },
+    {
+        id: 'feedback-doc',
+        title: '反馈与查询',
+        icon: '💬',
+        content: `
+            <h2>💬 反馈与查询</h2>
+
+            <h3>提交反馈</h3>
+            <p>打开「反馈」Tab，选择反馈类型，填写描述（最多 500 字），点击提交。</p>
+            <p>提交成功后，会显示一个 <strong>查询码</strong>（形如 <code>CSRT-XXXXXXXX</code>），请截图保存。</p>
+
+            <h3>查看管理员回复</h3>
+            <p>两种方式：</p>
+            <ol>
+                <li><strong>本设备</strong>：反馈页底部「📬 我的反馈」区域，会自动列出你提交过的反馈，点击查看详情</li>
+                <li><strong>凭查询码</strong>：反馈表单下方「已有查询码？点此查询回复」，输入查询码即可</li>
+            </ol>
+
+            <h3>为什么需要查询码？</h3>
+            <p>反馈存储在公共数据库中，查询码是你唯一的凭证。</p>
+            <p>如果换了设备、清了缓存，本地记录会丢失，但<strong>凭查询码仍能查到</strong>。</p>
+
+            <h3>注意事项</h3>
+            <ul>
+                <li>反馈会公开存储，<strong>请勿填写敏感信息</strong></li>
+                <li>查询码一旦丢失，无法找回</li>
+                <li>管理员回复后会显示在反馈详情里，可随时刷新查看</li>
+            </ul>
+        `
+    },
+    {
+        id: 'faq',
+        title: '常见问题',
+        icon: '❓',
+        content: `
+            <h2>❓ 常见问题</h2>
+
+            <h3>Q: CSRT 会不会被 CCW 检测到？</h3>
+            <p>A: CSRT 本身不做破坏性操作，且大部分替换都是局部的。但第三方反作弊扩展（如 CSense 拦截器）可能通过 DOM 特征检测到。</p>
+            <p>我们提供了「防 CSense 检测」副脚本，可以拦截它的检测和上报。</p>
+
+            <h3>Q: 为什么悬浮球不见了？</h3>
+            <p>A: 可能原因：</p>
+            <ul>
+                <li>脚本未启用：检查 Tampermonkey 面板</li>
+                <li>页面不匹配：确认当前是 ccw.site 域名</li>
+                <li>被其他脚本遮挡：尝试刷新页面</li>
+            </ul>
+
+            <h3>Q: 辅助脚本怎么装？</h3>
+            <p>A: 在官网右侧「🔌 辅助脚本」区域，点击任意脚本的「⬇ 安装」按钮，Tampermonkey 会自动打开安装页面。</p>
+
+            <h3>Q: 装了多个辅助脚本会不会冲突？</h3>
+            <p>A: 建议装「辅助管理器」，它会自动检测冲突并给出建议。</p>
+
+            <h3>Q: 变量锁定后怎么解锁？</h3>
+            <p>A: 打开面板 → 「数据修改」Tab → 找到锁定变量 → 点击「🔓解锁」。</p>
+
+            <h3>Q: 作品替换器怎么用？</h3>
+            <p>A: 打开面板 → 「附加功能」Tab → 「作品替换器」区域 → 上传 .sb3 文件 → 刷新页面生效。</p>
+
+            <h3>Q: 提交反馈后没看到查询码怎么办？</h3>
+            <p>A: 查询码只在提交成功时弹窗显示一次。如果没保存，本地记录里也保存了查询码，可在「我的反馈」详情里查看。</p>
+        `
+    }
+];
+
+/* ==================== 开发计划数据 ==================== */
+const roadmapData = {
+    done: [
+        { text: 'CSRTConfig 统一配置管理', version: 'v2.9.7' },
+        { text: 'CSRTConsoleFilter 日志过滤工厂', version: 'v2.9.7' },
+        { text: 'privateLog 增加 maxSize 上限', version: 'v2.9.7' },
+        { text: 'CSRTDatabase delete / clear 方法', version: 'v2.9.7' },
+        { text: '统一 XHR 拦截器', version: 'v2.9.6' },
+        { text: 'Blob URL 兼容层', version: 'v2.9.6' },
+        { text: '页面功能门控 PageFeatureGate', version: 'v2.9.6' },
+        { text: 'VM 捕获重写（BFS Fiber）', version: 'v2.9.6' },
+        { text: '显示评论 ID', version: 'v2.9.6' },
+        { text: '作品导出（sb3 / sprite3 / ZIP）', version: 'v2.9.7' }
+    ],
+    doing: [
+        { text: '辅助管理器脚本', version: 'v1.0.0' },
+        { text: '防 CSense 检测副脚本', version: 'v1.0.0' },
+        { text: '官网辅助脚本下载区', version: 'v1.0.0' }
+    ],
+    plan: [
+        { text: '移动端适配优化', version: 'v3.0.0' },
+        { text: '国际化支持（中/英）', version: 'v3.0.0' },
+        { text: '插件市场 / 在线扩展源', version: 'v3.1.0' }
+    ]
+};
+
+/* ==================== 分类颜色映射 ==================== */
+const categoryClassMap = {
+    fix: 'cat-fix',
+    feature: 'cat-feature',
+    optimize: 'cat-optimize',
+    refactor: 'cat-refactor',
+    release: 'cat-release'
+};
+
+/* ==================== escapeHtml（全局共用） ==================== */
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+/* ==================== 渲染更新日志 ==================== */
+function getDownloadUrl(version) {
+    if (typeof downloadsData === 'undefined') return null;
+    const item = downloadsData.find(d => d.version === version);
+    return (item && item.url && item.url.trim() !== '') ? item.url : null;
+}
+
+function renderNews() {
+    const list = document.getElementById('newsList');
+    if (!list) return;
+    if (newsData.length === 0) {
+        list.innerHTML = '<li style="padding:20px;text-align:center;color:var(--text-muted);">⚠️ 请粘贴 newsData 数据</li>';
+        return;
+    }
+    list.innerHTML = newsData.map((item, index) => {
+        const downloadUrl = getDownloadUrl(item.version);
+        const downloadBtnHtml = downloadUrl
+            ? `<a class="news-download-btn"
+                  href="${escapeHtml(downloadUrl)}"
+                  target="_blank"
+                  rel="noopener"
+                  title="下载 ${escapeHtml(item.version)}"
+                  data-download="true">⬇ 下载</a>`
+            : '';
+        return `
+            <li class="news-item fade-in-item" data-index="${index}" style="animation-delay: ${index * 0.02}s">
+                <span class="news-title">
+                    <span class="version-badge">${item.version}</span>
+                    <span class="category-tag ${categoryClassMap[item.category] || ''}">${item.categoryLabel}</span>
+                    ${item.title}
+                </span>
+                ${downloadBtnHtml}
+            </li>
+        `;
+    }).join('');
+
+    list.querySelectorAll('.news-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+            if (e.target.closest('[data-download]')) return;
+            const idx = parseInt(this.dataset.index);
+            openDetail(newsData[idx]);
+        });
+    });
+}
+
+/* ==================== 渲染版本下载（侧栏） ==================== */
+function renderDownloads() {
+    const container = document.getElementById('downloadsList');
+    if (!container) return;
+
+    if (downloadsData.length === 0) {
+        container.innerHTML = '<div class="download-empty">暂无版本</div>';
+        return;
+    }
+
+    const showAll = downloadsExpanded;
+    const list = showAll ? downloadsData : downloadsData.slice(0, DOWNLOADS_SHOW_LIMIT);
+
+    container.innerHTML = list.map(item => {
+        const hasUrl = item.url && item.url.trim() !== '';
+        return `
+            <div class="download-item">
+                <div class="download-info">
+                    <div class="download-version">
+                        ${escapeHtml(item.version)}
+                        ${item.latest ? '<span class="download-badge-latest">最新</span>' : ''}
+                    </div>
+                </div>
+                <a class="download-btn ${hasUrl ? '' : 'disabled'}"
+                   ${hasUrl ? `href="${escapeHtml(item.url)}" target="_blank" rel="noopener"` : ''}
+                   title="${hasUrl ? '下载 ' + escapeHtml(item.version) : '链接待补充'}">
+                   ${hasUrl ? '⬇ 下载' : '⏳ 待补'}
+                </a>
+            </div>
+        `;
+    }).join('');
+
+    if (downloadsData.length > DOWNLOADS_SHOW_LIMIT) {
+        const moreBtn = document.createElement('div');
+        moreBtn.className = 'download-more';
+        moreBtn.textContent = downloadsExpanded
+            ? '▲ 收起'
+            : `▼ 查看全部（共 ${downloadsData.length} 个）`;
+        moreBtn.onclick = () => {
+            downloadsExpanded = !downloadsExpanded;
+            renderDownloads();
+        };
+        container.appendChild(moreBtn);
+    }
+}
+
+/* ==================== 渲染辅助脚本（侧栏） ==================== */
+function renderAuxScripts() {
+    const container = document.getElementById('auxScriptsList');
+    if (!container) return;
+
+    if (auxScriptsData.length === 0) {
+        container.innerHTML = '<div class="download-empty">暂无辅助脚本</div>';
+        return;
+    }
+
+    const showAll = auxExpanded;
+    const list = showAll ? auxScriptsData : auxScriptsData.slice(0, AUX_SHOW_LIMIT);
+
+    container.innerHTML = list.map(item => {
+        const hasUrl = item.url && item.url.trim() !== '';
+        const statusInfo = AUX_STATUS_MAP[item.status] || AUX_STATUS_MAP.standalone;
+
+        return `
+            <div class="aux-script-item">
+                <div class="aux-script-head">
+                    <span class="aux-script-icon">${item.icon}</span>
+                    <span class="aux-script-name">${escapeHtml(item.name)}</span>
+                    <span class="aux-script-badge" style="background:${statusInfo.bg};color:${statusInfo.color};">${statusInfo.label}</span>
+                </div>
+                <div class="aux-script-desc">${escapeHtml(item.desc)}</div>
+                ${item.note ? `<div class="aux-script-note">⚠️ ${escapeHtml(item.note)}</div>` : ''}
+                <div class="aux-script-foot">
+                    <span class="aux-script-version">${escapeHtml(item.version)}</span>
+                    <a class="download-btn ${hasUrl ? '' : 'disabled'}"
+                       ${hasUrl ? `href="${escapeHtml(item.url)}" target="_blank" rel="noopener"` : ''}
+                       title="${hasUrl ? '安装 ' + escapeHtml(item.name) : '链接待补充'}">
+                       ${hasUrl ? '⬇ 安装' : '⏳ 待补'}
+                    </a>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (auxScriptsData.length > AUX_SHOW_LIMIT) {
+        const moreBtn = document.createElement('div');
+        moreBtn.className = 'download-more';
+        moreBtn.textContent = auxExpanded
+            ? '▲ 收起'
+            : `▼ 查看全部（共 ${auxScriptsData.length} 个）`;
+        moreBtn.onclick = () => {
+            auxExpanded = !auxExpanded;
+            renderAuxScripts();
+        };
+        container.appendChild(moreBtn);
+    }
+}
+
+/* ==================== 动态更新侧栏版本号 ==================== */
+function updateCurrentVersion() {
+    const el = document.getElementById('csrt-current-version');
+    if (!el) return;
+    const latest = downloadsData.find(d => d.latest);
+    if (latest) {
+        el.textContent = latest.version;
+    }
+}
+
+/* ==================== 动态更新置顶公告 ==================== */
+function updatePinnedAnnouncement() {
+    const el = document.getElementById('csrt-pinned-announcement');
+    if (!el) return;
+    if (newsData.length > 0) {
+        const latest = newsData[0];
+        el.textContent = `${latest.version} 已发布：${latest.title}`;
+    }
+}
+
+/* ==================== 渲染功能列表 ==================== */
+function renderFeatures() {
+    const grid = document.getElementById('featuresGrid');
+    const statusLabel = { stable: '稳定', beta: '测试', dev: '开发中' };
+    grid.innerHTML = featuresData.map((f, i) => `
+        <div class="feature-card fade-in-item" style="animation-delay: ${i * 0.02}s">
+            <div class="feature-head">
+                <div class="feature-icon">${f.icon}</div>
+                <div class="feature-name">${f.name}</div>
+                <span class="feature-status status-${f.status}">${statusLabel[f.status] || f.status}</span>
+            </div>
+            <div class="feature-desc">${f.desc}</div>
+        </div>
+    `).join('');
+}
+
+/* ==================== 渲染文档 ==================== */
+function renderDocs() {
+    const toc = document.getElementById('docsToc');
+    const content = document.getElementById('docsContent');
+
+    toc.innerHTML = '<div class="docs-toc-title">目录</div>' +
+        docsData.map((d, i) => `
+            <div class="docs-toc-item ${i === 0 ? 'active' : ''}" data-doc="${d.id}">${d.icon} ${d.title}</div>
+        `).join('');
+
+    content.innerHTML = docsData.map((d, i) => `
+        <div class="docs-section ${i === 0 ? 'active' : ''}" data-doc-section="${d.id}">
+            ${d.content}
+        </div>
+    `).join('');
+
+    toc.querySelectorAll('.docs-toc-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const id = this.dataset.doc;
+            toc.querySelectorAll('.docs-toc-item').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            content.querySelectorAll('.docs-section').forEach(s => {
+                s.classList.toggle('active', s.dataset.docSection === id);
+            });
+            content.scrollTop = 0;
+        });
+    });
+}
+
+/* ==================== 渲染开发计划 ==================== */
+function renderRoadmap() {
+    const wrap = document.getElementById('roadmapWrap');
+    const sections = [
+        { key: 'done', title: '✅ 已完成', icon: 'done' },
+        { key: 'doing', title: '🚧 进行中', icon: 'doing' },
+        { key: 'plan', title: '📋 计划中', icon: 'plan' }
+    ];
+    let html = '';
+    sections.forEach(sec => {
+        html += `<div class="roadmap-col-title">${sec.title}</div>`;
+        (roadmapData[sec.key] || []).forEach((item, i) => {
+            html += `
+                <div class="roadmap-item fade-in-item" style="animation-delay: ${i * 0.03}s">
+                    <div class="roadmap-icon ${sec.icon}">
+                        ${sec.icon === 'done' ? '✓' : sec.icon === 'doing' ? '⋯' : '○'}
+                    </div>
+                    <div class="roadmap-text">${item.text}</div>
+                    <div class="roadmap-meta">${item.version}</div>
+                </div>
+            `;
+        });
+    });
+    wrap.innerHTML = html;
+}
+
+/* ==================== 详情弹窗 ==================== */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalContent = document.getElementById('modalContent');
+
+function openDetail(item) {
+    let detailHtml = '';
+    if (item.details) {
+        for (const [sectionTitle, items] of Object.entries(item.details)) {
+            detailHtml += `<div class="modal-section-title">◆ ${sectionTitle}</div>`;
+            detailHtml += '<ul class="modal-list">';
+            items.forEach(line => { detailHtml += `<li>${line}</li>`; });
+            detailHtml += '</ul>';
+        }
+    }
+
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <div class="modal-title-area">
+                <div class="modal-version">
+                    ${item.version}
+                    <span class="category-tag ${categoryClassMap[item.category] || ''}">${item.categoryLabel}</span>
+                </div>
+            </div>
+            <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-body">
+            ${detailHtml || '<div style="color:var(--text-muted);font-size:13px;">此版本暂无详细说明。</div>'}
+        </div>
+    `;
+
+    modalOverlay.classList.add('active');
+    document.getElementById('modalClose').addEventListener('click', closeDetail);
+}
+
+function closeDetail() {
+    modalOverlay.classList.remove('active');
+}
+
+modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeDetail();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetail();
+});
+
+/* ==================== Tab 切换 + 平滑下划线 ==================== */
+const tabBarInner = document.getElementById('tabBarInner');
+const tabUnderline = document.getElementById('tabUnderline');
+const tabItems = document.querySelectorAll('.tab-item');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+function moveUnderline(tabEl) {
+    if (!tabEl) {
+        tabUnderline.style.opacity = '0';
+        return;
+    }
+    tabUnderline.style.opacity = '1';
+    tabUnderline.style.left = tabEl.offsetLeft + 'px';
+    tabUnderline.style.width = tabEl.offsetWidth + 'px';
+}
+
+function activateTab(tabName) {
+    tabItems.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+    tabPanels.forEach(p => p.classList.toggle('active', p.dataset.panel === tabName));
+    const activeTab = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
+    moveUnderline(activeTab);
+}
+
+tabItems.forEach(tab => {
+    tab.addEventListener('click', function () {
+        activateTab(this.dataset.tab);
+    });
+});
+
+window.addEventListener('load', () => {
+    const activeTab = document.querySelector('.tab-item.active');
+    if (activeTab) moveUnderline(activeTab);
+});
+window.addEventListener('resize', () => {
+    const activeTab = document.querySelector('.tab-item.active');
+    if (activeTab) moveUnderline(activeTab);
+});
+
+/* ==================== 导航联动 Tab（顶部 + 侧栏） ==================== */
+document.querySelectorAll('[data-goto]').forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = this.dataset.goto;
+        if (!target) return;
+
+        if (target === 'contact') {
+            document.querySelector('.site-footer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
+        activateTab(target);
+
+        const mainWrapper = document.querySelector('.main-wrapper');
+        if (mainWrapper) {
+            const top = mainWrapper.getBoundingClientRect().top + window.pageYOffset - 100;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }
+    });
+});
+
+/* ==================== 搜索系统 ==================== */
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const searchDropdown = document.getElementById('searchDropdown');
+
+function buildSearchIndex() {
+    const index = [];
+
+    newsData.forEach((item, i) => {
+        const detailText = item.details
+            ? Object.entries(item.details).map(([k, v]) => k + ' ' + v.join(' ')).join(' ')
+            : '';
+        index.push({
+            type: 'news', icon: '📋', typeLabel: '更新日志',
+            title: `${item.version} ${item.title}`,
+            sub: item.categoryLabel,
+            searchText: `${item.version} ${item.title} ${item.categoryLabel} ${detailText}`.toLowerCase(),
+            target: { panel: 'log', index: i }
+        });
+    });
+
+    featuresData.forEach((item, i) => {
+        index.push({
+            type: 'feature', icon: item.icon, typeLabel: '功能列表',
+            title: item.name, sub: item.desc,
+            searchText: `${item.name} ${item.desc}`.toLowerCase(),
+            target: { panel: 'features', index: i }
+        });
+    });
+
+    docsData.forEach((doc) => {
+        const plainText = doc.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+        index.push({
+            type: 'doc', icon: doc.icon, typeLabel: '文档',
+            title: doc.title,
+            sub: plainText.slice(0, 80) + '...',
+            searchText: `${doc.title} ${plainText}`.toLowerCase(),
+            target: { panel: 'docs', docId: doc.id }
+        });
+    });
+
+    ['done', 'doing', 'plan'].forEach(key => {
+        const label = { done: '已完成', doing: '进行中', plan: '计划中' }[key];
+        (roadmapData[key] || []).forEach((item, i) => {
+            index.push({
+                type: 'roadmap',
+                icon: key === 'done' ? '✅' : key === 'doing' ? '🚧' : '📋',
+                typeLabel: '开发计划',
+                title: item.text,
+                sub: `${label} · ${item.version}`,
+                searchText: `${item.text} ${label} ${item.version}`.toLowerCase(),
+                target: { panel: 'roadmap', key, index: i }
+            });
+        });
+    });
+
+    // 辅助脚本
+    auxScriptsData.forEach((item, i) => {
+        index.push({
+            type: 'aux', icon: item.icon, typeLabel: '辅助脚本',
+            title: item.name, sub: `${item.version} · ${item.desc}`,
+            searchText: `${item.name} ${item.desc} ${item.version}`.toLowerCase(),
+            target: { panel: 'log', aux: true }
+        });
+    });
+
+    return index;
+}
+
+const searchIndex = buildSearchIndex();
+
+function highlightText(text, query) {
+    if (!query) return text;
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return text.replace(regex, '<mark class="search-hl">$1</mark>');
+}
+
+function search(query) {
+    if (!query || !query.trim()) return [];
+    const q = query.trim().toLowerCase();
+    return searchIndex
+        .filter(item => item.searchText.includes(q))
+        .map(item => ({ ...item, _score: item.title.toLowerCase().includes(q) ? 2 : 1 }))
+        .sort((a, b) => b._score - a._score);
+}
+
+function renderDropdown(results, query) {
+    if (results.length === 0) {
+        searchDropdown.innerHTML = `
+            <div class="search-empty">
+                <div class="search-empty-icon">🔍</div>
+                <div>没有找到「${escapeHtml(query)}」相关内容</div>
+            </div>
+        `;
+        searchDropdown.classList.add('active');
+        return;
+    }
+
+    const groups = {};
+    results.slice(0, 30).forEach(item => {
+        if (!groups[item.type]) groups[item.type] = [];
+        groups[item.type].push(item);
+    });
+
+    let html = '';
+    const typeOrder = ['news', 'feature', 'doc', 'roadmap', 'aux'];
+    typeOrder.forEach(type => {
+        if (!groups[type]) return;
+        const items = groups[type].slice(0, 3);
+        const total = groups[type].length;
+        const first = items[0];
+        html += `
+            <div class="search-group">
+                <div class="search-group-title">
+                    <span>${first.icon} ${first.typeLabel}</span>
+                    <span class="count">${total}</span>
+                </div>
+                ${items.map(item => `
+                    <div class="search-item" data-search-type="${item.type}" data-search-id="${escapeHtml(item.title)}">
+                        <span class="search-item-icon">${item.icon}</span>
+                        <div class="search-item-content">
+                            <div class="search-item-title">${highlightText(item.title, query)}</div>
+                            <div class="search-item-sub">${highlightText(item.sub || '', query)}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+
+    if (results.length > 30) {
+        html += `<div class="search-group" style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;">
+            还有 ${results.length - 30} 条结果，按 Enter 查看全部
+        </div>`;
+    }
+
+    searchDropdown.innerHTML = html;
+    searchDropdown.classList.add('active');
+
+    searchDropdown.querySelectorAll('.search-item').forEach(el => {
+        el.addEventListener('click', function () {
+            const type = this.dataset.searchType;
+            const title = this.dataset.searchId;
+            const item = results.find(r => r.type === type && r.title === title);
+            if (item) {
+                jumpToResult(item);
+                searchDropdown.classList.remove('active');
+                searchInput.value = '';
+            }
+        });
+    });
+}
+
+function jumpToResult(item) {
+    const { panel, index, docId, aux } = item.target;
+
+    if (aux) {
+        // 辅助脚本跳转到日志 Tab（因为辅助脚本卡片在侧栏，不切 Tab 时也能看到）
+        activateTab('log');
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        return;
+    }
+
+    activateTab(panel);
+
+    setTimeout(() => {
+        if (panel === 'log') {
+            const newsItem = document.querySelector(`.news-item[data-index="${index}"]`);
+            if (newsItem) {
+                newsItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                newsItem.classList.add('highlight-flash');
+                setTimeout(() => newsItem.classList.remove('highlight-flash'), 1600);
+            }
+        } else if (panel === 'features') {
+            const cards = document.querySelectorAll('.feature-card');
+            if (cards[index]) {
+                cards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cards[index].classList.add('highlight-flash');
+                setTimeout(() => cards[index].classList.remove('highlight-flash'), 1600);
+            }
+        } else if (panel === 'docs') {
+            const tocItem = document.querySelector(`.docs-toc-item[data-doc="${docId}"]`);
+            if (tocItem) tocItem.click();
+        } else if (panel === 'roadmap') {
+            const items = document.querySelectorAll('.roadmap-item');
+            const target = Array.from(items).find(el =>
+                el.querySelector('.roadmap-text')?.textContent === item.title
+            );
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.classList.add('highlight-flash');
+                setTimeout(() => target.classList.remove('highlight-flash'), 1600);
+            }
+        }
+    }, 350);
+}
+
+function renderSearchResults(results, query) {
+    const container = document.getElementById('searchResults');
+    const countEl = document.getElementById('searchResultCount');
+
+    if (!query || !query.trim()) {
+        container.innerHTML = '<div class="search-empty"><div class="search-empty-icon">🔍</div><div>输入关键词开始搜索</div></div>';
+        countEl.textContent = '';
+        return;
+    }
+
+    if (results.length === 0) {
+        container.innerHTML = `<div class="search-empty"><div class="search-empty-icon">🔍</div><div>没有找到「${escapeHtml(query)}」相关内容</div></div>`;
+        countEl.textContent = '';
+        return;
+    }
+
+    countEl.textContent = `共 ${results.length} 条结果`;
+
+    const groups = {};
+    results.forEach(item => {
+        if (!groups[item.type]) groups[item.type] = [];
+        groups[item.type].push(item);
+    });
+
+    const typeOrder = [
+        { key: 'news', label: '📋 更新日志' },
+        { key: 'feature', label: '📦 功能列表' },
+        { key: 'doc', label: '📄 文档' },
+        { key: 'roadmap', label: '📋 开发计划' },
+        { key: 'aux', label: '🔌 辅助脚本' }
+    ];
+
+    let html = '';
+    typeOrder.forEach(({ key, label }) => {
+        if (!groups[key]) return;
+        html += `
+            <div class="search-result-section">
+                <div class="search-result-section-title">${label} <span style="color:var(--text-muted);font-weight:400;font-size:12px;">(${groups[key].length})</span></div>
+                ${groups[key].map(item => `
+                    <div class="search-result-card" data-type="${item.type}" data-title="${escapeHtml(item.title)}">
+                        <div class="search-result-card-title">${highlightText(item.title, query)}</div>
+                        <div class="search-result-card-sub">${highlightText(item.sub || '', query)}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.search-result-card').forEach(el => {
+        el.addEventListener('click', function () {
+            const type = this.dataset.type;
+            const title = this.dataset.title;
+            const item = results.find(r => r.type === type && r.title === title);
+            if (item) jumpToResult(item);
+        });
+    });
+}
+
+let searchDebounce = null;
+searchInput.addEventListener('input', function () {
+    clearTimeout(searchDebounce);
+    const q = this.value;
+    if (!q.trim()) {
+        searchDropdown.classList.remove('active');
+        return;
+    }
+    searchDebounce = setTimeout(() => {
+        const results = search(q);
+        renderDropdown(results, q);
+    }, 120);
+});
+
+searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = this.value.trim();
+        if (!q) return;
+        const results = search(q);
+        renderSearchResults(results, q);
+        activateTab('search');
+        searchDropdown.classList.remove('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (e.key === 'Escape') {
+        searchDropdown.classList.remove('active');
+    }
+});
+
+searchBtn.addEventListener('click', () => {
+    const q = searchInput.value.trim();
+    if (!q) return;
+    const results = search(q);
+    renderSearchResults(results, q);
+    activateTab('search');
+    searchDropdown.classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-box')) {
+        searchDropdown.classList.remove('active');
+    }
+});
+
+/* ==================== 暗色模式 ==================== */
+const themeToggle = document.getElementById('themeToggle');
+const THEME_KEY = 'csrt_theme';
+
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = '☀️';
+        themeToggle.title = '切换到亮色模式';
+    } else {
+        document.body.classList.remove('dark');
+        themeToggle.textContent = '🌙';
+        themeToggle.title = '切换到暗色模式';
+    }
+}
+
+function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) {
+        applyTheme(saved);
+    } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+    }
+}
+
+themeToggle.addEventListener('click', () => {
+    const isDark = document.body.classList.contains('dark');
+    const nextTheme = isDark ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    localStorage.setItem(THEME_KEY, nextTheme);
+});
+
+initTheme();
+
+/* ==================== 渲染全部 ==================== */
+renderNews();
+updatePinnedAnnouncement();
+renderFeatures();
+renderDocs();
+renderRoadmap();
+renderDownloads();
+renderAuxScripts();  // ★ 新增
+updateCurrentVersion();
+
+/* ==================== 加载动画隐藏 ==================== */
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('pageLoader').classList.add('hidden');
+    }, 500);
+});
+
+/* ==================== 反馈系统（IIFE 闭包） ==================== */
+(function() {
+    'use strict';
+
+    const TEXTDB_KEY = 'CSRT_Exclusive_feedback';
+    const TEXTDB_BASE = 'https://textdb.online';
+    const MAX_FEEDBACK = 200;
+    const MAX_DESC_LEN = 500;
+    const MY_FB_KEY = 'csrt_my_feedback';
+
+    const TYPE_BG_MAP = {
+        'Bug': 'background:rgba(239,68,68,0.15);color:#ef4444;',
+        '功能建议': 'background:rgba(34,197,94,0.15);color:#22c55e;',
+        '其他': 'background:rgba(139,92,246,0.15);color:#8b5cf6;'
+    };
+
+    async function loadFeedback() {
+        try {
+            const res = await fetch(`${TEXTDB_BASE}/${TEXTDB_KEY}?t=${Date.now()}`);
+            if (!res.ok) return [];
+            const text = await res.text();
+            if (!text || text.trim() === '' || text.trim() === 'null') return [];
+            try {
+                const data = JSON.parse(text);
+                return Array.isArray(data) ? data : [];
+            } catch {
+                return [];
+            }
+        } catch (e) {
+            console.warn('[反馈] 读取失败:', e.message);
+            return [];
+        }
+    }
+
+    async function saveFeedback(list) {
+        const value = encodeURIComponent(JSON.stringify(list));
+        const url = `${TEXTDB_BASE}/update/?key=${encodeURIComponent(TEXTDB_KEY)}&value=${value}`;
+        const res = await fetch(url, { method: 'POST' });
+        if (!res.ok) throw new Error('写入失败 HTTP ' + res.status);
+        return await res.text();
+    }
+
+    async function submitFeedback(item, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const list = await loadFeedback();
+                const exists = list.some(f => f.id === item.id);
+                if (exists) return { ok: true, deduped: true };
+                list.push(item);
+
+                if (list.length > MAX_FEEDBACK) {
+                    const archived = list.slice(0, list.length - MAX_FEEDBACK);
+                    list.splice(0, list.length - MAX_FEEDBACK);
+                    try {
+                        const archiveKey = TEXTDB_KEY + '_archive';
+                        const oldArchive = await fetch(`${TEXTDB_BASE}/${archiveKey}`).then(r => r.text()).catch(() => '[]');
+                        let archiveList = [];
+                        try { archiveList = JSON.parse(oldArchive) || []; } catch {}
+                        archiveList.push(...archived);
+                        await fetch(`${TEXTDB_BASE}/update/?key=${encodeURIComponent(archiveKey)}&value=${encodeURIComponent(JSON.stringify(archiveList))}`, { method: 'POST' });
+                    } catch (e) { console.warn('[反馈] 归档失败:', e.message); }
+                }
+
+                await saveFeedback(list);
+
+                await new Promise(r => setTimeout(r, 300));
+                const verify = await loadFeedback();
+                if (verify.some(f => f.id === item.id)) {
+                    return { ok: true };
+                }
+                console.warn(`[反馈] 第 ${i + 1} 次验证失败，重试...`);
+            } catch (e) {
+                console.warn(`[反馈] 第 ${i + 1} 次提交失败:`, e.message);
+                if (i === retries - 1) throw e;
+                await new Promise(r => setTimeout(r, 500 * (i + 1)));
+            }
+        }
+        throw new Error('提交失败：多次重试后仍无法写入');
+    }
+
+    function genId() {
+        return 'fb_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    }
+
+    function genCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let s = '';
+        for (let i = 0; i < 10; i++) s += chars[Math.floor(Math.random() * chars.length)];
+        return 'CSRT-' + s;
+    }
+
+    function getMyFeedback() {
+        try {
+            const raw = localStorage.getItem(MY_FB_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+    }
+
+    function saveMyFeedback(list) {
+        try { localStorage.setItem(MY_FB_KEY, JSON.stringify(list)); } catch {}
+    }
+
+    function addMyFeedback(item) {
+        const list = getMyFeedback();
+        list.unshift({
+            id: item.id,
+            code: item.code,
+            time: item.time,
+            timeStr: item.timeStr,
+            type: item.type,
+            desc: item.desc
+        });
+        if (list.length > 50) list.length = 50;
+        saveMyFeedback(list);
+        renderMyFeedback();
+    }
+
+    async function renderMyFeedback() {
+        const listEl = document.getElementById('myFeedbackList');
+        if (!listEl) return;
+
+        const my = getMyFeedback();
+        if (my.length === 0) {
+            listEl.innerHTML = '<div class="my-feedback-empty">暂无记录</div>';
+            return;
+        }
+
+        let remote = [];
+        try { remote = await loadFeedback(); } catch {}
+
+        listEl.innerHTML = my.map(item => {
+            const remoteItem = remote.find(r => r.id === item.id);
+            const replyCount = remoteItem?.replies?.length || 0;
+            const typeStyle = TYPE_BG_MAP[item.type] || TYPE_BG_MAP['其他'];
+            return `
+                <div class="my-feedback-item" data-fb-id="${escapeHtml(item.id)}">
+                    <div class="my-feedback-item-head">
+                        <span class="my-feedback-item-type" style="${typeStyle}">${escapeHtml(item.type)}</span>
+                        <span class="my-feedback-item-time">${escapeHtml(item.timeStr)}</span>
+                    </div>
+                    <div class="my-feedback-item-desc">${escapeHtml(item.desc)}</div>
+                    <div class="my-feedback-item-status ${replyCount > 0 ? 'has-reply' : 'no-reply'}">
+                        ${replyCount > 0 ? `💬 有 ${replyCount} 条回复，点击查看` : '⏳ 暂无回复'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        listEl.querySelectorAll('[data-fb-id]').forEach(el => {
+            el.onclick = () => showFeedbackDetail(el.dataset.fbId);
+        });
+    }
+
+    async function showFeedbackDetail(id) {
+        const my = getMyFeedback();
+        const localItem = my.find(m => m.id === id);
+        if (!localItem) return;
+
+        let remoteItem = null;
+        try {
+            const remote = await loadFeedback();
+            remoteItem = remote.find(r => r.id === id);
+        } catch {}
+
+        const replies = remoteItem?.replies || [];
+        const typeStyle = TYPE_BG_MAP[localItem.type] || TYPE_BG_MAP['其他'];
+
+        let repliesHtml = '';
+        if (replies.length > 0) {
+            repliesHtml = `
+                <div class="fb-detail-replies">
+                    <div class="modal-section-title" style="margin-top:16px;">💬 管理员回复 (${replies.length})</div>
+                    ${replies.map(r => `
+                        <div class="fb-detail-reply">
+                            <div class="fb-detail-reply-time">${escapeHtml(r.timeStr || '')}</div>
+                            <div class="fb-detail-reply-content">${escapeHtml(r.content || '')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            repliesHtml = `
+                <div class="fb-detail-replies">
+                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
+                        ⏳ 管理员暂未回复
+                    </div>
+                </div>
+            `;
+        }
+
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <div class="modal-title-area">
+                    <div class="modal-version" style="font-size:16px;">
+                        我的反馈
+                        <span class="my-feedback-item-type" style="${typeStyle}">${escapeHtml(localItem.type)}</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-muted);font-family:monospace;margin-top:4px;">
+                        ${escapeHtml(localItem.timeStr)} · 查询码 ${escapeHtml(localItem.code || '')}
+                    </div>
+                </div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section-title">📝 反馈内容</div>
+                <div style="font-size:14px;color:var(--text-main);line-height:1.8;white-space:pre-wrap;word-break:break-word;padding:12px;background:rgba(139,92,246,0.04);border-radius:8px;">
+                    ${escapeHtml(localItem.desc)}
+                </div>
+                ${repliesHtml}
+            </div>
+        `;
+
+        modalOverlay.classList.add('active');
+        document.getElementById('modalClose').addEventListener('click', closeDetail);
+    }
+
+    function showCodeModal(code) {
+        const overlay = document.createElement('div');
+        overlay.className = 'code-modal-overlay';
+        overlay.innerHTML = `
+            <div class="code-modal">
+                <h3>✅ 提交成功</h3>
+                <div class="code-modal-sub">
+                    你的反馈已提交。下次想查看管理员回复时，可在「反馈」页面底部「我的反馈」区域查看。<br>
+                    如果换了设备或清了浏览器缓存，可凭下面的查询码查询（请截图保存）：
+                </div>
+                <div class="code-modal-code" id="codeText">${escapeHtml(code)}</div>
+                <div class="code-modal-actions">
+                    <button id="codeCopy">📋 复制查询码</button>
+                    <button class="primary" id="codeClose">我知道了</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('active'));
+
+        const close = () => {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+        };
+
+        overlay.querySelector('#codeCopy').onclick = () => {
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = overlay.querySelector('#codeCopy');
+                btn.textContent = '✅ 已复制';
+                setTimeout(() => { btn.textContent = '📋 复制查询码'; }, 1500);
+            }).catch(() => {
+                alert('复制失败，请手动复制：' + code);
+            });
+        };
+        overlay.querySelector('#codeClose').onclick = close;
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+    }
+
+    function showQueryModal(prefill = '') {
+        const overlay = document.createElement('div');
+        overlay.className = 'code-modal-overlay';
+        overlay.innerHTML = `
+            <div class="code-modal">
+                <h3 style="color:var(--primary-dark);">🔍 查询反馈</h3>
+                <div class="code-modal-sub">
+                    输入提交时获得的查询码（形如 CSRT-XXXXXXXX），即可查看反馈详情和管理员回复。
+                </div>
+                <input
+                    type="text"
+                    class="code-modal-input"
+                    id="queryCodeInput"
+                    placeholder="CSRT-XXXXXXXX"
+                    maxlength="20"
+                    value="${escapeHtml(prefill)}"
+                    autocomplete="off"
+                >
+                <div class="code-modal-msg" id="queryCodeMsg"></div>
+                <div class="code-modal-actions">
+                    <button id="queryCancel">取消</button>
+                    <button class="primary" id="querySubmit">查询</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('active'));
+
+        const input = overlay.querySelector('#queryCodeInput');
+        const msg = overlay.querySelector('#queryCodeMsg');
+        const submitBtn = overlay.querySelector('#querySubmit');
+
+        const close = () => {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+        };
+
+        async function doQuery() {
+            const code = input.value.trim().toUpperCase();
+            if (!code) {
+                msg.textContent = '⚠️ 请输入查询码';
+                msg.className = 'code-modal-msg error';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '查询中...';
+            msg.textContent = '⏳ 正在查询...';
+            msg.className = 'code-modal-msg';
+
+            try {
+                const list = await loadFeedback();
+                const item = list.find(f => (f.code || '').toUpperCase() === code);
+
+                if (!item) {
+                    msg.textContent = '❌ 未找到对应反馈，请检查查询码';
+                    msg.className = 'code-modal-msg error';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '查询';
+                    return;
+                }
+
+                msg.textContent = '✅ 找到反馈！';
+                msg.className = 'code-modal-msg success';
+
+                setTimeout(() => {
+                    close();
+                    showFeedbackDetailByRemote(item);
+                }, 400);
+            } catch (e) {
+                msg.textContent = '❌ 查询失败：' + e.message;
+                msg.className = 'code-modal-msg error';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '查询';
+            }
+        }
+
+        submitBtn.onclick = doQuery;
+        overlay.querySelector('#queryCancel').onclick = close;
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); doQuery(); }
+        });
+
+        setTimeout(() => input.focus(), 150);
+    }
+
+    function showFeedbackDetailByRemote(item) {
+        const replies = item.replies || [];
+        const typeStyle = TYPE_BG_MAP[item.type] || TYPE_BG_MAP['其他'];
+
+        let repliesHtml = '';
+        if (replies.length > 0) {
+            repliesHtml = `
+                <div class="fb-detail-replies">
+                    <div class="modal-section-title" style="margin-top:16px;">💬 管理员回复 (${replies.length})</div>
+                    ${replies.map(r => `
+                        <div class="fb-detail-reply">
+                            <div class="fb-detail-reply-time">${escapeHtml(r.timeStr || '')}</div>
+                            <div class="fb-detail-reply-content">${escapeHtml(r.content || '')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            repliesHtml = `
+                <div class="fb-detail-replies">
+                    <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
+                        ⏳ 管理员暂未回复
+                    </div>
+                </div>
+            `;
+        }
+
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <div class="modal-title-area">
+                    <div class="modal-version" style="font-size:16px;">
+                        反馈详情
+                        <span class="my-feedback-item-type" style="${typeStyle}">${escapeHtml(item.type)}</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-muted);font-family:monospace;margin-top:4px;">
+                        ${escapeHtml(item.timeStr || '')} · 查询码 ${escapeHtml(item.code || '')}
+                    </div>
+                </div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section-title">📝 反馈内容</div>
+                <div style="font-size:14px;color:var(--text-main);line-height:1.8;white-space:pre-wrap;word-break:break-word;padding:12px;background:rgba(139,92,246,0.04);border-radius:8px;">
+                    ${escapeHtml(item.desc)}
+                </div>
+                ${repliesHtml}
+            </div>
+        `;
+
+        modalOverlay.classList.add('active');
+        document.getElementById('modalClose').addEventListener('click', closeDetail);
+    }
+
+    const fbDesc = document.getElementById('fbDesc');
+    const fbCount = document.getElementById('fbCount');
+    if (fbDesc && fbCount) {
+        fbDesc.addEventListener('input', () => {
+            fbCount.textContent = fbDesc.value.length;
+            fbCount.parentElement.classList.toggle('over', fbDesc.value.length > MAX_DESC_LEN);
+        });
+    }
+
+    const openQueryModalLink = document.getElementById('openQueryModal');
+    if (openQueryModalLink) {
+        openQueryModalLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showQueryModal();
+        });
+    }
+
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const type = document.getElementById('fbType').value;
+        const contact = document.getElementById('fbContact').value.trim();
+        const desc = document.getElementById('fbDesc').value.trim();
+        const hint = document.getElementById('fbHint');
+        const btn = document.getElementById('fbSubmit');
+
+        if (!desc) {
+            hint.textContent = '⚠️ 请填写详细描述';
+            hint.className = 'form-hint error';
+            return;
+        }
+        if (desc.length > MAX_DESC_LEN) {
+            hint.textContent = `⚠️ 描述不能超过 ${MAX_DESC_LEN} 字`;
+            hint.className = 'form-hint error';
+            return;
+        }
+
+        const code = genCode();
+        const item = {
+            id: genId(),
+            code,
+            time: Date.now(),
+            timeStr: new Date().toLocaleString('zh-CN'),
+            type,
+            contact: contact || null,
+            desc,
+            ua: navigator.userAgent,
+            page: location.href
+        };
+
+        btn.disabled = true;
+        btn.textContent = '提交中...';
+        hint.textContent = '⏳ 正在提交...';
+        hint.className = 'form-hint';
+
+        try {
+            await submitFeedback(item);
+            hint.textContent = '✅ 提交成功！';
+            hint.className = 'form-hint success';
+
+            addMyFeedback(item);
+            showCodeModal(code);
+
+            e.target.reset();
+            fbCount.textContent = '0';
+            setTimeout(() => {
+                hint.textContent = '💡 反馈会公开存储，请勿填写敏感信息';
+                hint.className = 'form-hint';
+            }, 4000);
+        } catch (err) {
+            hint.textContent = '❌ 提交失败：' + err.message;
+            hint.className = 'form-hint error';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '提交反馈';
+        }
+    });
+
+    document.getElementById('refreshMyFeedback')?.addEventListener('click', renderMyFeedback);
+
+    document.getElementById('clearMyFeedback')?.addEventListener('click', () => {
+        if (!confirm('确定清空本设备上的反馈记录？\n\n⚠️ 这只删除本地记录，不会删除服务器上的反馈。\n如果还保留查询码，之后仍可凭查询码查看。')) return;
+        localStorage.removeItem(MY_FB_KEY);
+        renderMyFeedback();
+    });
+
+    renderMyFeedback();
+})();
+</script>
+
+</body>
+</html>
